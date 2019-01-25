@@ -1,0 +1,29 @@
+---
+title: "SAR exercicio pratico"
+author: "Alexandre Camargo Martensen"
+date: "25 de janeiro de 2019"
+output: html_document
+---
+
+Este é um exercício que iremos fazer para entender melhor a relação espécie vs área, que é tida por muitos como uma lei da Ecologia (A única?!).
+
+A relação espécie área....
+
+
+We are going to deal with 5 models today (which is already kind of a lot), but according to some authors there are as many as 20 reasonable models for the species-area relationship, so we’ll want to make our code easily extensible. The five models we will work with are those defined by Dengler and Oldeland (2010).
+
+Power: S = b0 * Ab1
+Power-quadratic: S = 10(b0 + b1 * log(A) + b2 * log(A)2)
+Logarithmic: S = b0 + b1 * log(A)
+Michaelis-Menten: S = b0 * A / (b1 + A)
+Lomolino: S = b0 / (1 + b1log(b2/A))
+
+
+
+____
+
+Inicialmente iremos entrar com os dados do tamanho das ilhas, criando o objeto área
+```{r}
+areas<-c(1, 5.2, 10.95, 152.3, 597.6, 820, 989.8, 1232.5, 15061)
+```
+
