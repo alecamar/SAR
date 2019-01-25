@@ -27,3 +27,37 @@ Inicialmente iremos entrar com os dados do tamanho das ilhas, criando o objeto �
 areas<-c(1, 5.2, 10.95, 152.3, 597.6, 820, 989.8, 1232.5, 15061)
 ```
 
+```{r}
+sar_parameters <- list(c(20.81, 0.1896), c(1.35, 0.1524, 0.0081),
+c(14.36, 21.16), c(85.91, 42.57), c(1082.45, 1.59, 390000000))
+
+areas <- c(1, 5.2, 10.95, 152.3, 597.6, 820, 989.8, 1232.5, 15061)
+```
+
+
+Agora iremos entrar com os parametros dos modelos
+sar_parameters = 
+Power:[20.81, 0.1896], 
+Power-quadratic: [1.35, 0.1524, 0.0081],
+logaritmico:[14.36, 21.16], 
+Michaelis-Menten:[85.91, 42.57],
+Lomolino: [1082.45, 1.59, 390000000]]
+
+Write a script that calculates the richness predicted by each model for each area, and exports the results to a csv file with the first column containing the area for the prediction and the second column containing the mean predicted richness for that area. To make this easily extensible you will want to write a function that defines each of the different species-area models (5 functions total) and then use higher order functions to call those functions. 
+
+
+Terminar plotando as curvas e analisar as diferencas.
+
+This is a follow up to the Species Area Relationship problem.
+
+After writing a program to estimate the number of species at a site of a given area based on the average predictions of a suite of different species-area relationship equations, you realize that as you add more and more equations (remember, we might eventually want at least 20) it’s going to increasingly clutter your code. In addition, many of the equations aren’t really specific to the species-area relationship itself and so you’d like to be able to use them in some of your projects related to population growth.
+
+Create a new module called yourname_equations.py (where yourname is, creatively enough, replaced with your name). Move all of the equations into that module. Add a docstring to the module itself and for each individual function (these can be quite short). Modify your main program to use these functions by importing your new module.
+
+Optional: If you’re feeling bold, add some commands to the module so that if someone tries to execute it directly it just prints out the sentence: “This is just a bunch of equations for use by other programs. It doesn’t do anything on its own. TTFN.” (but make sure it doesn’t do this if it’s imported as a library). Then modify your main program to check for command line arguments. If arguments are present have your code treat each of them as an area and print an estimate of species richness for each area to the screen. If no arguments are present have your code print the answers to all of the home work problems.
+
+
+
+
+
+
