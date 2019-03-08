@@ -1,47 +1,159 @@
 ---
 title: "SAR exercicio pratico"
 author: "Alexandre Camargo Martensen"
-date: "25 de janeiro de 2019"
-output: html_document
+date: '`r Sys.time()`'
+output: 
+  html_document:
+     keep_md: yes
 ---
 
-Este é um exercício que iremos fazer para entender melhor a relação espécie vs área, que é tida por muitos como uma lei da Ecologia (A única?!).
-
-A relação espécie área....
+# Exercício prático sobre a **Relação Espécie-Área**
 
 
-We are going to deal with 5 models today (which is already kind of a lot), but according to some authors there are as many as 20 reasonable models for the species-area relationship, so we’ll want to make our code easily extensible. The five models we will work with are those defined by Dengler and Oldeland (2010).
+Nesse exercício que iremos rodar alguns modelos para entendermos melhor a relação espécie *vs.* área (SAR - do inglês *"Species Area Relationship"*), que é tida por muitos como uma lei da Ecologia (*A única?!*).
 
-Power: S = b0 * Ab1
-Power-quadratic: S = 10(b0 + b1 * log(A) + b2 * log(A)2)
-Logarithmic: S = b0 + b1 * log(A)
+A relação espécie-área é quase que "universal", e isso é algo que intriga muito os pesquisadores, uma vez que as espécies e os indivíduos não são homogêneamente distribuídas no espaço.
+
+Este exercício é adaptado do curso "Data Carpentry for Biologists" que é muito bom e eu aconselho vocês darem uma olhada. Este exercício em especial você pode encontrar neste link:
+
+http://datacarpentry.org/semester-biology/exercises/Higher-order-functions-species-area-relationship-R/
+
+Para este exercício nós iremos trabalhar com 5 modelos dos mais comuns, contudo, muitos autores relatam pelo menos 20 modelos com relativo suporte para explicar a relação espécie *vs.* área. Os 5 modelos que iremos trabalhar são definidos por Dengler and Oldeland (2010) como:
+
+Potência: S = b0 * A^b1
+
+Potência-quadrada: S = 10^(b0 + b1 * log(A) + b2 * log(A)^2)
+
+Logarítmico: S = b0 + b1 * log(A)
+
 Michaelis-Menten: S = b0 * A / (b1 + A)
-Lomolino: S = b0 / (1 + b1log(b2/A))
 
+Lomolino: S = b0 / (1 + b1^log(b2/A))
 
-
-____
-
-Inicialmente iremos entrar com os dados do tamanho das ilhas, criando o objeto área
+_______
+Pacotes que necessitaremos
 ```{r}
+library(knitr)
+```
+
+
+Inicialmente iremos entrar com os dados do tamanho das ilhas, criando o objeto área, que irá armazenar estes valores
+```{r, eval=FALSE}
 areas<-c(1, 5.2, 10.95, 152.3, 597.6, 820, 989.8, 1232.5, 15061)
 ```
 
 ```{r}
-sar_parameters <- list(c(20.81, 0.1896), c(1.35, 0.1524, 0.0081),
-c(14.36, 21.16), c(85.91, 42.57), c(1082.45, 1.59, 390000000))
+areas<-read.csv("sar-areas.csv", header=FALSE)
+```
 
-areas <- c(1, 5.2, 10.95, 152.3, 597.6, 820, 989.8, 1232.5, 15061)
+As áreas
+```{r}
+areas
+```
+
+Posteriormente iremos entrar com os parâmetros, conforme lista abaixo:
+
+Potência:[20.81, 0.1896], 
+
+Potência-quadrada: [1.35, 0.1524, 0.0081],
+
+logarítmico:[14.36, 21.16], 
+
+Michaelis-Menten:[85.91, 42.57],
+
+Lomolino: [1082.45, 1.59, 390000000]]
+
+```{r}
+parametros<-read.csv("sar-model-data.csv", header=FALSE)
+```
+
+Os parâmetros
+```{r}
+kable(parametros)
 ```
 
 
-Agora iremos entrar com os parametros dos modelos
-sar_parameters = 
-Power:[20.81, 0.1896], 
-Power-quadratic: [1.35, 0.1524, 0.0081],
-logaritmico:[14.36, 21.16], 
-Michaelis-Menten:[85.91, 42.57],
-Lomolino: [1082.45, 1.59, 390000000]]
+```{r, eval=FALSE, echo=FALSE}
+sar_parameters <- list(c(20.81, 0.1896), c(1.35, 0.1524, 0.0081),
+c(14.36, 21.16), c(85.91, 42.57), c(1082.45, 1.59, 390000000))
+```
+
+Nosso objetivo agora é calcularmos a riqueza predita por cada um dos modelos para cada uma das áreas. Para isso iremos criar funções para cada um dos modelos (ou seja, 5 ao todo) que calculam a riqueza para cada uma das áreas que temos. 
+```{r}
+potencia<-function(b0, Areas, b1){
+  b0 * Areas^b1
+}
+
+pot_quadrada<-function(b0, b1, Areas, b2){
+  10^(b0 + b1 * log10(Areas) + b2 * log(Areas)^2)
+}
+
+loga<-function(b0, b1, Areas){
+  b0 + b1 * log10(Areas)
+}
+
+MM<-function(b0, Areas, b1){
+  b0 * (Areas / (b1 + Areas))
+}
+
+Lomo<-function(b0, b1, b2, Areas){
+  b0/(1 + b1^(log10(b2/Areas)))
+}
+```
+
+
+```{r}
+mod1<-potencia(parametros[1,2], areas, parametros[1,3])
+mod2<-pot_quadrada(parametros[2,2], parametros[2,3], areas, parametros[2,4])
+mod3<-loga(parametros[3,2], parametros[3,3], areas)
+mod4<-MM(parametros[4,2], areas, parametros[4,3])
+mod5<-Lomo(parametros[5,2], parametros[5,3], parametros[5,4], areas)
+```
+
+```{r}
+mods<-cbind(mod1, mod2, mod3, mod4, mod5)
+```
+
+```{r}
+resultados<-cbind(areas, rowMeans(mods))
+```
+
+```{r}
+kable(mods)
+```
+
+```{r}
+kable(resultados)
+```
+
+
+
+```{r}
+plot(areas$V1, mod1[,1])
+#line(lm(mod1[,1] areas$V1))
+points(areas$V1, mod2[,1], col="red")
+points(areas$V1, mod3[,1], col="blue")
+points(areas$V1, mod4[,1], col="purple")
+points(areas$V1, mod5[,1], col="brown")
+```
+
+
+"","area","avg_pred_S"
+"1",1,11.928
+"2",5.2,19.322
+"3",10.95,23.986
+"4",152.3,47.087
+"5",597.6,58.778
+"6",820,61.475
+"7",989.8,63.106
+"8",1232.5,65.041
+"9",15061,92.263
+
+
+
+
+
+
 
 Write a script that calculates the richness predicted by each model for each area, and exports the results to a csv file with the first column containing the area for the prediction and the second column containing the mean predicted richness for that area. To make this easily extensible you will want to write a function that defines each of the different species-area models (5 functions total) and then use higher order functions to call those functions. 
 
@@ -57,6 +169,21 @@ Create a new module called yourname_equations.py (where yourname is, creatively 
 Optional: If you’re feeling bold, add some commands to the module so that if someone tries to execute it directly it just prints out the sentence: “This is just a bunch of equations for use by other programs. It doesn’t do anything on its own. TTFN.” (but make sure it doesn’t do this if it’s imported as a library). Then modify your main program to check for command line arguments. If arguments are present have your code treat each of them as an area and print an estimate of species richness for each area to the screen. If no arguments are present have your code print the answers to all of the home work problems.
 
 
+Avaliar fazer uma amostragem nas lagoas do campus e analisar a SAR
+
+Ver tb estes textos:
+
+http://math.hws.edu/~mitchell/SpeciesArea/speciesAreaText.html
+
+https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0038232
+
+https://www.ecologyandsociety.org/vol9/iss2/art11/
+
+https://en.wikipedia.org/wiki/Species%E2%80%93area_relationship
+
+All other factors being equal, the larger the geographic area of a community, the more species it has. The likely explanation for this pattern is that larger areas offer a greater diversity of habitats and microhabitats than smaller areas
+
+http://www.tiem.utk.edu/~gross/bioed/bealsmodules/spec_area.html
 
 
 
