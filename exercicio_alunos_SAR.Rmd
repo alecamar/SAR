@@ -5,20 +5,31 @@ date: '`r Sys.time()`'
 output: 
   html_document:
      keep_md: yes
+     toc: TRUE
+     toc_depth: 3
 ---
 
 # Exercício prático sobre a **Relação Espécie-Área**
 
+## Apresentação
 
-Nesse exercício que iremos rodar alguns modelos para entendermos melhor a relação espécie *vs.* área (SAR - do inglês *"Species Area Relationship"*), que é tida por muitos como uma lei da Ecologia (*A única?!*).
+Esse exercício elabora em cima do que vimos na aula teórica sobre a **relação espécie-área**. 
 
-A relação espécie-área é quase que "universal", e isso é algo que intriga muito os pesquisadores, uma vez que as espécies e os indivíduos não são homogêneamente distribuídas no espaço.
+Nesse momento iremos *por a mão na massa* e rodar alguns modelos para entendermos melhor como se dá a relação espécie *vs.* área (SAR - do inglês, *"Species Area Relationship"*), que é tida por muitos como uma lei da Ecologia (*A única?!*).
 
-Este exercício é adaptado do curso "Data Carpentry for Biologists" que é muito bom e eu aconselho vocês darem uma olhada. Este exercício em especial você pode encontrar neste link:
+A relação espécie-área é quase "universal", e isso é algo que intriga muito os pesquisadores, uma vez que as espécies e os indivíduos não são homogêneamente distribuídas no espaço. Então, como essa relação pode ser universal?! Iremos discutir isso mais pra frente no curso, por enquanto, vá pensando sobre o assunto!
+
+Esse exercício que iremos fazer é adaptado do curso <a href="http://datacarpentry.org/semester-biology/">"Data Carpentry for Biologists"</a> que é muito bom e eu aconselho vocês a darem uma olhada. Esse exercício em especial vocês podem encontrar neste link:
 
 http://datacarpentry.org/semester-biology/exercises/Higher-order-functions-species-area-relationship-R/
 
-Para este exercício nós iremos trabalhar com 5 modelos dos mais comuns, contudo, muitos autores relatam pelo menos 20 modelos com relativo suporte para explicar a relação espécie *vs.* área. Os 5 modelos que iremos trabalhar são definidos por Dengler and Oldeland (2010) como:
+Nós iremos trabalhar com 5 dos modelos mais comuns que tentam modelar a relação espécie-área, contudo, muitos autores apontam que existem pelo menos 20 modelos com relativo suporte para explicar a relação espécie *vs.* área. 
+
+<a href="https://onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2699.2008.02038.x">Dengler 2009</a> fez uma revisão desses modelos, e cita muitos artigos que discutem uma série de outros modelos, e inclusivem que discutem as similaridades, diferenças e confusões entre os modelos **espécie-área (SAR - Species Area Relatioship)** e os de **amostragem de espécies (SSR - Species Sampling Relationships)**, conforme discutimos na aula teórica.
+
+## Os modelos
+
+Os 5 modelos que iremos trabalhar são definidos por <a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">Dengler and Oldeland (2010) - o artigo é full open access - </a>como:
 
 Potência: S = b0 * A^b1
 
@@ -30,62 +41,72 @@ Michaelis-Menten: S = b0 * A / (b1 + A)
 
 Lomolino: S = b0 / (1 + b1^log(b2/A))
 
+Contudo, estes modelos, bem como outros tantos são mais bem explorados no artigo de <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2699.2008.02038.x">Dengler de 2009</a> também full open access.
+
+Ambos artigos estão disponíveis na pasta "./pdfs" do projeto (para quem baixou a pasta integralmente, o que eu recomendo, sempre!).
+
 _______
+
+## O código 
+
+### Pacotes
+
 Pacotes que necessitaremos
 ```{r}
-library(knitr)
+library(knitr) #Apenas para visualização das tabelas em um formato mais amigável
 ```
 
+### Entrada de dados
 
-Inicialmente iremos entrar com os dados do tamanho das ilhas, criando o objeto área, que irá armazenar estes valores
+Inicialmente iremos entrar com os dados do tamanho das ilhas, criando o objeto *area*, que irá armazenar estes valores.
+
+Caso você tenha baixado a pasta do projeto, pule este bloco de códigos e baixe diretamente a planilha "sar-areas.csv", conforme o código na sequência abaixo. 
 ```{r, eval=FALSE}
-areas<-c(1, 5.2, 10.95, 152.3, 597.6, 820, 989.8, 1232.5, 15061)
+areas<-data.frame(c(1, 5.2, 10.95, 152.3, 597.6, 820, 989.8, 1232.5, 15061))
+colnames(areas)<-"V1"
 ```
 
+Através desse código, você consegue baixar diretamente a planilha com os dados das áreas amostradas.
 ```{r}
 areas<-read.csv("sar-areas.csv", header=FALSE)
 ```
 
-As áreas
+Visualizando as áreas das ilhas que iremos trabalhar.
 ```{r}
 areas
 ```
 
-Posteriormente iremos entrar com os parâmetros, conforme lista abaixo:
-
-Potência:[20.81, 0.1896], 
-
-Potência-quadrada: [1.35, 0.1524, 0.0081],
-
-logarítmico:[14.36, 21.16], 
-
-Michaelis-Menten:[85.91, 42.57],
-
-Lomolino: [1082.45, 1.59, 390000000]]
-
+Posteriormente iremos entrar com os parâmetros das equações que são dados (<a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">artigo Dengler and Oldeland (2010)</a>)
 ```{r}
 parametros<-read.csv("sar-model-data.csv", header=FALSE)
+colnames(parametros)<-c("modelos", "b0", "b1", "b2")
 ```
 
-Os parâmetros
+Para quem não baixou as planilhas, entre com os dados manualmente
+```{r, eval=FALSE}
+parametros <- data.frame(rbind(c(20.81, 0.1896, NA), c(1.35, 0.1524, 0.0081),
+c(14.36, 21.16, NA), c(85.91, 42.57, NA), c(1082.45, 1.59, 390000000)))
+parametros<-cbind(c("Power", "PowerQuadratic", "Logarithmic", "MichaelisMenten", "Lomolino"), parametros)
+colnames(parametros)<-c("modelos", "b0", "b1", "b2")
+```
+
+Visualizando os parâmetros
 ```{r}
 kable(parametros)
 ```
 
+### Funções
 
-```{r, eval=FALSE, echo=FALSE}
-sar_parameters <- list(c(20.81, 0.1896), c(1.35, 0.1524, 0.0081),
-c(14.36, 21.16), c(85.91, 42.57), c(1082.45, 1.59, 390000000))
-```
+Nosso objetivo agora é calcularmos a riqueza predita por cada um dos modelos para cada uma das áreas. 
 
-Nosso objetivo agora é calcularmos a riqueza predita por cada um dos modelos para cada uma das áreas. Para isso iremos criar funções para cada um dos modelos (ou seja, 5 ao todo) que calculam a riqueza para cada uma das áreas que temos. 
+Para isso iremos criar funções para cada um dos modelos (ou seja, 5 ao todo), que calculam a riqueza para cada uma das áreas que temos (ou outras tantas que podemos entrar!). 
 ```{r}
 potencia<-function(b0, Areas, b1){
   b0 * Areas^b1
 }
 
 pot_quadrada<-function(b0, b1, Areas, b2){
-  10^(b0 + b1 * log10(Areas) + b2 * log(Areas)^2)
+  10^(b0 + b1 * log10(Areas) + b2 * (log(Areas))^2)
 }
 
 loga<-function(b0, b1, Areas){
@@ -101,90 +122,95 @@ Lomo<-function(b0, b1, b2, Areas){
 }
 ```
 
+### Obtenção dos resultados
 
+Utilizando as funções que criamos acima, iremos agora calcular as riquezas com base nos parâmetros e nas áreas dadas.
 ```{r}
-mod1<-potencia(parametros[1,2], areas, parametros[1,3])
-mod2<-pot_quadrada(parametros[2,2], parametros[2,3], areas, parametros[2,4])
-mod3<-loga(parametros[3,2], parametros[3,3], areas)
-mod4<-MM(parametros[4,2], areas, parametros[4,3])
-mod5<-Lomo(parametros[5,2], parametros[5,3], parametros[5,4], areas)
+mod1<-potencia(parametros[1,"b0"], areas, parametros[1,"b1"])
+mod2<-pot_quadrada(parametros[2,"b0"], parametros[2,"b1"], areas, parametros[2,"b2"])
+mod3<-loga(parametros[3,"b0"], parametros[3,"b1"], areas)
+mod4<-MM(parametros[4,"b0"], areas, parametros[4,"b1"])
+mod5<-Lomo(parametros[5,"b0"], parametros[5,"b1"], parametros[5,"b2"], areas)
 ```
 
+Organizando os resultados
 ```{r}
 mods<-cbind(mod1, mod2, mod3, mod4, mod5)
+colnames(mods)<-c("Power", "PowerQuadratic", "Logarithmic", "Michaelis-Menten", "Lomolino")
 ```
 
-```{r}
-resultados<-cbind(areas, rowMeans(mods))
-```
-
+Visualizando os resultados
 ```{r}
 kable(mods)
 ```
 
+Obtendo a média dos resultados para comparar com o resultado dado no <a href="http://datacarpentry.org/semester-biology/solutions/Higher-order-functions-species-area-relationship-R.txt">site aqui</a>
+```{r}
+download.file("http://datacarpentry.org/semester-biology/solutions/Higher-order-functions-species-area-relationship-R.txt", "res_compara.txt")
+
+res.comp<-read.table("res_compara.txt", header=TRUE, sep=",")
+
+resultados<-cbind(areas, rowMeans(mods), res.comp)
+```
+
+Visualizando as médias e comparando com o apresentado pelo site como correto.
 ```{r}
 kable(resultados)
 ```
 
+#RESULTADOS DIFEREM, VERIFICAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+### Plotando os resultados
 
-```{r}
-plot(areas$V1, mod1[,1])
-#line(lm(mod1[,1] areas$V1))
-points(areas$V1, mod2[,1], col="red")
-points(areas$V1, mod3[,1], col="blue")
-points(areas$V1, mod4[,1], col="purple")
-points(areas$V1, mod5[,1], col="brown")
+Terminamos agora com a visualização gráfica das curvas, para que possamos analisar as diferenças entre as predições dos diferentes modelos.
+
+Vamos ver graficamente o resultado dos nossos modelos
+```{r, eval=TRUE}
+plot(areas$V1, mod1$V1, xlab="Áreas", ylab="Espécies")
+points(areas$V1, mod2$V1, col="red")
+points(areas$V1, mod3$V1, col="blue")
+points(areas$V1, mod4$V1, col="purple")
+points(areas$V1, mod5$V1, col="brown")
 ```
 
+Vamos ver também na escala log10, que como vimos na aula teórica, "lineariza" as relações.
+```{r, eval=TRUE}
+plot(log10(areas$V1), log10(mod1$V1), xlab="log10 Áreas", ylab="log10 Espécies")
+points(log10(areas$V1), log10(mod2$V1), col="red")
+points(log10(areas$V1), log10(mod3$V1), col="blue")
+points(log10(areas$V1), log10(mod4$V1), col="purple")
+points(log10(areas$V1), log10(mod5$V1), col="brown")
+```
+Note que a relação aqui ficou log10 x log10
 
-"","area","avg_pred_S"
-"1",1,11.928
-"2",5.2,19.322
-"3",10.95,23.986
-"4",152.3,47.087
-"5",597.6,58.778
-"6",820,61.475
-"7",989.8,63.106
-"8",1232.5,65.041
-"9",15061,92.263
+Agora que avaliamos os modelos para as ilhas do exercício, vamos assumir que estamos pensando em amostrar outras 3 ilhas, cujos tamanhos são  10, 100 e 1000 ha. Como os modelos se comportam para ilhas com estes tamanhos? Onde vai haver a maior diferença entre os modelos? Como isso pode afetar a utilização destes modelos para a tomada de decisão, caso estejamos por exemplo, interessados em entender um determinado impacto nestas ilhas?
 
+**Coisas ainda pra fazer:** 
 
+##Ainda necessita preparar....
 
+Estas equações servem (com outros parâmetros) para analisarmos por exemplo, o número de espécies de Microcrustáceos zooplanctônicos das lagos do campus. Será que o número de espécies varia em função do tamanho da lagoa? 
 
-
-
-
-Write a script that calculates the richness predicted by each model for each area, and exports the results to a csv file with the first column containing the area for the prediction and the second column containing the mean predicted richness for that area. To make this easily extensible you will want to write a function that defines each of the different species-area models (5 functions total) and then use higher order functions to call those functions. 
-
-
-Terminar plotando as curvas e analisar as diferencas.
-
-This is a follow up to the Species Area Relationship problem.
-
-After writing a program to estimate the number of species at a site of a given area based on the average predictions of a suite of different species-area relationship equations, you realize that as you add more and more equations (remember, we might eventually want at least 20) it’s going to increasingly clutter your code. In addition, many of the equations aren’t really specific to the species-area relationship itself and so you’d like to be able to use them in some of your projects related to population growth.
-
-Create a new module called yourname_equations.py (where yourname is, creatively enough, replaced with your name). Move all of the equations into that module. Add a docstring to the module itself and for each individual function (these can be quite short). Modify your main program to use these functions by importing your new module.
-
-Optional: If you’re feeling bold, add some commands to the module so that if someone tries to execute it directly it just prints out the sentence: “This is just a bunch of equations for use by other programs. It doesn’t do anything on its own. TTFN.” (but make sure it doesn’t do this if it’s imported as a library). Then modify your main program to check for command line arguments. If arguments are present have your code treat each of them as an area and print an estimate of species richness for each area to the screen. If no arguments are present have your code print the answers to all of the home work problems.
-
-
-Avaliar fazer uma amostragem nas lagoas do campus e analisar a SAR
-
-Ver tb estes textos:
-
-http://math.hws.edu/~mitchell/SpeciesArea/speciesAreaText.html
-
+Quais seriam os processos ecológicos que definiriam essa forma da relação espécie-área?
 https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0038232
 
+Aplicações para a conservação:
 https://www.ecologyandsociety.org/vol9/iss2/art11/
 
-https://en.wikipedia.org/wiki/Species%E2%80%93area_relationship
 
-All other factors being equal, the larger the geographic area of a community, the more species it has. The likely explanation for this pattern is that larger areas offer a greater diversity of habitats and microhabitats than smaller areas
+**EXTRAS**
+
+VEr se estes sites tem mais algum material interessante para incorporar na aula.
+http://math.hws.edu/~mitchell/SpeciesArea/speciesAreaText.html
 
 http://www.tiem.utk.edu/~gross/bioed/bealsmodules/spec_area.html
 
 
+
+##Referências utilizadas
+
+Dengler and Oldeland (2010) https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x
+
+DEngler (2009) https://onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2699.2008.02038.x
 
 
