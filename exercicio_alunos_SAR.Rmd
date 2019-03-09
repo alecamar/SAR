@@ -17,7 +17,7 @@ Esse exercício elabora em cima do que vimos na aula teórica sobre a **relaçã
 
 Nesse momento iremos *por a mão na massa* e rodar alguns modelos para entendermos melhor como se dá a relação espécie *vs.* área (SAR - do inglês, *"Species Area Relationship"*), que é tida por muitos como uma lei da Ecologia (*A única?!*).
 
-A relação espécie-área é quase "universal", e isso é algo que intriga muito os pesquisadores, uma vez que as espécies e os indivíduos não são homogêneamente distribuídas no espaço. Então, como essa relação pode ser universal?! Iremos discutir isso mais pra frente no curso, por enquanto, vá pensando sobre o assunto!
+A relação espécie-área é quase "universal", e isso é algo que intriga muito os pesquisadores, uma vez que as espécies e os indivíduos não são homogêneamente distribuídos no espaço. Então, como essa relação pode ser universal?! Iremos discutir isso mais pra frente no curso, por enquanto, vá pensando sobre o assunto!
 
 Esse exercício que iremos fazer é adaptado do curso <a href="http://datacarpentry.org/semester-biology/">"Data Carpentry for Biologists"</a> que é muito bom e eu aconselho vocês a darem uma olhada. Esse exercício em especial vocês podem encontrar neste link:
 
@@ -29,7 +29,7 @@ Nós iremos trabalhar com 5 dos modelos mais comuns que tentam modelar a relaç�
 
 ## Os modelos
 
-Os 5 modelos que iremos trabalhar são definidos por <a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">Dengler and Oldeland (2010) - o artigo é full open access - </a>como:
+Os 5 modelos que iremos trabalhar são definidos por <a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">Dengler e Oldeland (2010) - o artigo é full open access - </a>como:
 
 Potência: S = b0 * A^b1
 
@@ -43,7 +43,7 @@ Lomolino: S = b0 / (1 + b1^log(b2/A))
 
 Contudo, estes modelos, bem como outros tantos são mais bem explorados no artigo de <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2699.2008.02038.x">Dengler de 2009</a> também full open access.
 
-Ambos artigos estão disponíveis na pasta "./pdfs" do projeto (para quem baixou a pasta integralmente, o que eu recomendo, sempre!).
+Ambos artigos estão disponíveis na pasta "./pdfs" do projeto (para quem baixou a pasta integralmente, o que eu recomendo... sempre!).
 
 _______
 
@@ -97,7 +97,7 @@ kable(parametros)
 
 ### Funções
 
-Nosso objetivo agora é calcularmos a riqueza predita por cada um dos modelos para cada uma das áreas. 
+Nosso objetivo agora é calcularmos a riqueza predita por cada um dos modelos para cada uma das áreas, com base nos parâmetros dados acima. 
 
 Para isso iremos criar funções para cada um dos modelos (ou seja, 5 ao todo), que calculam a riqueza para cada uma das áreas que temos (ou outras tantas que podemos entrar!). 
 ```{r}
@@ -181,9 +181,15 @@ points(log10(areas$V1), log10(mod3$V1), col="blue")
 points(log10(areas$V1), log10(mod4$V1), col="purple")
 points(log10(areas$V1), log10(mod5$V1), col="brown")
 ```
+
+
 Note que a relação aqui ficou log10 x log10
 
+### Perguntas
+
 Agora que avaliamos os modelos para as ilhas do exercício, vamos assumir que estamos pensando em amostrar outras 3 ilhas, cujos tamanhos são  10, 100 e 1000 ha. Como os modelos se comportam para ilhas com estes tamanhos? Onde vai haver a maior diferença entre os modelos? Como isso pode afetar a utilização destes modelos para a tomada de decisão, caso estejamos por exemplo, interessados em entender um determinado impacto nestas ilhas?
+
+
 
 **Coisas ainda pra fazer:** 
 
