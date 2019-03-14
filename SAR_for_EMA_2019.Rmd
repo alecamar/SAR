@@ -1,0 +1,132 @@
+---
+title: "SAR exercicio pratico"
+author: "Alexandre Camargo Martensen"
+date: '`r Sys.time()`'
+output: 
+  html_document:
+     keep_md: yes
+     toc: TRUE
+     toc_depth: 3
+  keep_md: TRUE
+---
+
+# SAR
+
+Adapted from <a href="http://datacarpentry.org/semester-biology/">"Data Carpentry for Biologists"</a> 
+
+http://datacarpentry.org/semester-biology/exercises/Higher-order-functions-species-area-relationship-R/
+
+Also see: <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2699.2008.02038.x">Dengler 2009</a>
+
+## Models
+
+Potência: S = b0 * A^b1
+
+Potência-quadrada: S = 10^(b0 + b1 * log(A) + b2 * log(A)^2)
+
+Logarítmico: S = b0 + b1 * log(A)
+
+Michaelis-Menten: S = b0 * A / (b1 + A)
+
+Lomolino: S = b0 / (1 + b1^log(b2/A))
+
+_______
+
+## The code 
+
+### Pck
+
+```{r}
+library(knitr) #Only for visualization
+```
+
+### Data
+
+```{r}
+download.file("http://datacarpentry.org/semester-biology/data/sar-areas.csv", "sar-areas.csv")
+areas<-read.csv("sar-areas.csv", header=FALSE)
+```
+
+Areas
+```{r}
+areas
+```
+
+<a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">artigo Dengler and Oldeland (2010)</a>
+```{r}
+download.file("http://datacarpentry.org/semester-biology/data/sar-model-data.csv", "sar-model-data.csv")
+parametros<-read.csv("sar-model-data.csv", header=FALSE)
+colnames(parametros)<-c("modelos", "b0", "b1", "b2")
+```
+
+Checking the parameters
+```{r}
+kable(parametros)
+```
+
+### Functions
+```{r}
+potencia<-function(b0, Areas, b1){
+  S = b0 * Areas^b1
+  return(S)
+}
+
+pot_quadrada<-function(b0, b1, Areas, b2){
+  S = 10^(b0 + b1 * log10(Areas) + b2 * log10(Areas)^2)
+  return (S)
+}
+
+loga<-function(b0, b1, Areas){
+  S = b0 + b1 * log10(Areas)
+  return (S)
+}
+
+MM<-function(b0, Areas, b1){
+  S = b0 * (Areas / (b1 + Areas))
+  return (S)
+}
+
+Lomo<-function(b0, b1, b2, Areas){
+  S = b0/(1 + b1^(log10(b2/Areas)))
+  return (S)
+}
+```
+
+### Results
+
+Calculations
+```{r}
+mod1<-potencia(parametros[1,"b0"], areas, parametros[1,"b1"])
+mod2<-pot_quadrada(parametros[2,"b0"], parametros[2,"b1"], areas, parametros[2,"b2"])
+mod3<-loga(parametros[3,"b0"], parametros[3,"b1"], areas)
+mod4<-MM(parametros[4,"b0"], areas, parametros[4,"b1"])
+mod5<-Lomo(parametros[5,"b0"], parametros[5,"b1"], parametros[5,"b2"], areas)
+```
+
+Organizing the results
+```{r}
+mods<-cbind(mod1, mod2, mod3, mod4, mod5)
+colnames(mods)<-c("Power", "PowerQuadratic", "Logarithmic", "Michaelis-Menten", "Lomolino")
+```
+
+Checking results
+```{r}
+kable(mods)
+```
+
+Checking the average and comparing with the one obtained from  <a href="http://datacarpentry.org/semester-biology/solutions/Higher-order-functions-species-area-relationship-R.txt">the site</a>
+```{r}
+download.file("http://datacarpentry.org/semester-biology/solutions/Higher-order-functions-species-area-relationship-R.txt", "Higher-order-functions-species-area-relationship-R.txt")
+
+res.comp<-read.table("Higher-order-functions-species-area-relationship-R.txt", header=TRUE, sep=",")
+
+resultados<-cbind(areas, rowMeans(mods), res.comp)
+```
+
+Checking the averages and comparing with the ones from the site.
+```{r}
+kable(resultados)
+```
+
+#Results are different
+
