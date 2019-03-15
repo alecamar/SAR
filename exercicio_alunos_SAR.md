@@ -1,7 +1,7 @@
 ---
 title: "SAR exercicio pratico"
 author: "Alexandre Camargo Martensen"
-date: '2019-03-15 16:26:45'
+date: '2019-03-15 16:36:35'
 output: 
   html_document:
      keep_md: yes
@@ -181,7 +181,7 @@ points(mods$Areas, mods$'Michaelis-Menten', col="purple")
 points(mods$Areas, mods$Lomolino, col="brown")
 ```
 
-![](exercicio_alunos_SAR_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+<img src="exercicio_alunos_SAR_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 
 Vamos ver também na escala log10, que como vimos na aula teórica, "lineariza" as relações.
 
@@ -193,7 +193,7 @@ points(log10(mods$Areas), log10(mods$'Michaelis-Menten'), col="purple")
 points(log10(mods$Areas), log10(mods$Lomolino), col="brown")
 ```
 
-![](exercicio_alunos_SAR_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+<img src="exercicio_alunos_SAR_files/figure-html/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
 
 
 Note que a relação aqui ficou log10 x log10
@@ -271,11 +271,11 @@ boxplot(value ~ V1, data=l, xlab="Tamanho das ilhas", ylab="Número de espécies
 
 ### Perguntas
 
-Agora que avaliamos os modelos para as ilhas do exercício, vamos assumir que estamos pensando em amostrar outras 3 ilhas, cujos tamanhos são  20, 100, 1000 e 10000 ha. Como os modelos se comportam para ilhas com estes tamanhos? Onde vai haver a maior diferença entre os modelos? Como isso pode afetar a utilização destes modelos para a tomada de decisão, caso estejamos por exemplo, interessados em entender um determinado impacto nestas ilhas?
+P1: Agora que avaliamos os modelos para as ilhas do exercício, vamos assumir que estamos pensando em amostrar outras 4 ilhas, cujos tamanhos são  20, 100, 1000 e 10000 ha. Como os modelos se comportam para ilhas com estes tamanhos? Onde vai haver a maior diferença entre os modelos? Como isso pode afetar a utilização destes modelos para a tomada de decisão, caso estejamos por exemplo, interessados em entender um determinado impacto nestas ilhas?
 
-Para resolver esse exercício, comece gerando um objeto com as áreas das novas ilhas a serem trabalhadas, e rode as funções novamente
+Gere figuras com estas novas ilhas inclusas e discuta os resultados
 
-
+P2: Discuta alguns fatores ecológicos que podem afetar o número de espécies em uma ilha.
 
 **Coisas ainda pra fazer:** 
 

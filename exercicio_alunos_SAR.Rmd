@@ -124,7 +124,7 @@ kable(mods)
 Terminamos agora com a visualização gráfica das curvas, para que possamos analisar as diferenças entre as predições dos diferentes modelos.
 
 Vamos ver graficamente o resultado dos nossos modelos
-```{r, eval=TRUE}
+```{r, eval=TRUE, fig.align='center'}
 plot(mods$Areas, mods$PowerQuadratic, xlab="Áreas", ylab="Espécies" )
 points(mods$Areas, mods$Power, col="red")
 points(mods$Areas, mods$Logarithmic, col="blue")
@@ -133,7 +133,7 @@ points(mods$Areas, mods$Lomolino, col="brown")
 ```
 
 Vamos ver também na escala log10, que como vimos na aula teórica, "lineariza" as relações.
-```{r, eval=TRUE}
+```{r, eval=TRUE, fig.align='center'}
 plot(log10(mods$Areas), log10(mods$PowerQuadratic), xlab="Áreas", ylab="Espécies" )
 points(log10(mods$Areas), log10(mods$Power), col="red")
 points(log10(mods$Areas), log10(mods$Logarithmic), col="blue")
