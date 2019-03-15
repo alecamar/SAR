@@ -24,27 +24,11 @@ Esse exercício que iremos fazer é adaptado do curso <a href="http://datacarpen
 
 http://datacarpentry.org/semester-biology/exercises/Higher-order-functions-species-area-relationship-R/
 
-Nós iremos trabalhar com 5 dos modelos mais comuns que tentam modelar a relação espécie-área, contudo, muitos autores apontam que existem pelo menos 20 modelos com relativo suporte para explicar a relação espécie *vs.* área. 
+Nós iremos trabalhar com 5 dos modelos mais comuns que tentam modelar a relação espécie-área em ilhas (ver <a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">Dengler e Oldeland (2010) - o artigo é full open access - </a>), contudo, muitos autores apontam que existem pelo menos 20 modelos com relativo suporte para explicar a relação espécie *vs.* área. 
 
 <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2699.2008.02038.x">Dengler 2009</a> fez uma revisão desses modelos, e cita muitos artigos que discutem uma série de outros modelos, e inclusivem que discutem as similaridades, diferenças e confusões entre os modelos **espécie-área (SAR - Species Area Relatioship)** e os de **amostragem de espécies (SSR - Species Sampling Relationships)**, conforme discutimos na aula teórica.
 
-## Os modelos
-
-Os 5 modelos que iremos trabalhar são definidos por <a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">Dengler e Oldeland (2010) - o artigo é full open access - </a>como:
-
-Potência: S = b0 * A^b1
-
-Potência-quadrada: S = 10^(b0 + b1 * log(A) + b2 * log(A)^2)
-
-Logarítmico: S = b0 + b1 * log(A)
-
-Michaelis-Menten: S = b0 * A / (b1 + A)
-
-Lomolino: S = b0 / (1 + b1^log(b2/A))
-
-Estes modelos, bem como outros tantos são mais bem explorados no artigo de <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2699.2008.02038.x">Dengler de 2009</a> também full open access.
-
-Ambos artigos estão disponíveis na pasta "./pdfs" do projeto (para quem baixou a pasta integralmente, o que eu recomendo... sempre!).
+Ambos artigos estão disponíveis na pasta "./pdfs" do projeto.
 
 _______
 
@@ -55,17 +39,12 @@ _______
 Pacotes que necessitaremos
 ```{r}
 library(knitr) #Apenas para visualização das tabelas em um formato mais amigável
+library(tidyr) #Para fazer as manipulacoes nas tabelas no fim para analise
 ```
 
 ### Entrada de dados
 
-Inicialmente iremos entrar com os dados do tamanho das ilhas, criando o objeto *area*, que irá armazenar estes valores.
-
-Caso você tenha baixado a pasta do projeto, pule este bloco de códigos e baixe diretamente a planilha "sar-areas.csv", conforme o código na sequência abaixo. 
-```{r, eval=FALSE}
-areas<-data.frame(c(1, 5.2, 10.95, 152.3, 597.6, 820, 989.8, 1232.5, 15061))
-colnames(areas)<-"V1"
-```
+Inicialmente iremos entrar com os dados do tamanho das ilhas, criando o objeto *areas*, que irá armazenar estes valores.
 
 Através desse código, você consegue baixar diretamente a planilha com os dados das áreas amostradas.
 ```{r}
@@ -77,17 +56,9 @@ Visualizando as áreas das ilhas que iremos trabalhar.
 areas
 ```
 
-Posteriormente iremos entrar com os parâmetros das equações que são dados (<a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">artigo Dengler and Oldeland (2010)</a>)
+Posteriormente iremos entrar com os parâmetros das equações que são dados no (<a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">artigo de Dengler and Oldeland (2010)</a>)
 ```{r}
 parametros<-read.csv("sar-model-data.csv", header=FALSE)
-colnames(parametros)<-c("modelos", "b0", "b1", "b2")
-```
-
-Para quem não baixou as planilhas, entre com os dados manualmente
-```{r, eval=FALSE}
-parametros <- data.frame(rbind(c(20.81, 0.1896, NA), c(1.35, 0.1524, 0.0081),
-c(14.36, 21.16, NA), c(85.91, 42.57, NA), c(1082.45, 1.59, 390000000)))
-parametros<-cbind(c("Power", "PowerQuadratic", "Logarithmic", "MichaelisMenten", "Lomolino"), parametros)
 colnames(parametros)<-c("modelos", "b0", "b1", "b2")
 ```
 
@@ -107,7 +78,7 @@ potencia<-function(b0, Areas, b1){
 }
 
 pot_quadrada<-function(b0, b1, Areas, b2){
-  10^(b0 + b1 * log10(Areas) + b2 * (log(Areas))^2)
+  10^(b0 + b1 * log10(Areas) + b2 * log10(Areas)^2)
 }
 
 loga<-function(b0, b1, Areas){
@@ -119,7 +90,7 @@ MM<-function(b0, Areas, b1){
 }
 
 Lomo<-function(b0, b1, b2, Areas){
-  b0/(1 + b1^(log10(b2/Areas)))
+  b0/(1 + b1^log10(b2/Areas))
 }
 ```
 
@@ -137,7 +108,10 @@ mod5<-Lomo(parametros[5,"b0"], parametros[5,"b1"], parametros[5,"b2"], areas)
 Organizando os resultados
 ```{r}
 mods<-cbind(mod1, mod2, mod3, mod4, mod5)
-colnames(mods)<-c("Power", "PowerQuadratic", "Logarithmic", "Michaelis-Menten", "Lomolino")
+stdev<-apply(mods,1,sd)
+media<-rowSums(mods)/5
+mods<-cbind(areas, mods, media, stdev, stdev/media)
+colnames(mods)<-c("Areas", "Power", "PowerQuadratic", "Logarithmic", "Michaelis-Menten", "Lomolino", "Medias", "Desvio Padrao", "CV")
 ```
 
 Visualizando os resultados
@@ -145,52 +119,54 @@ Visualizando os resultados
 kable(mods)
 ```
 
-Obtendo a média dos resultados para comparar com o resultado dado no <a href="http://datacarpentry.org/semester-biology/solutions/Higher-order-functions-species-area-relationship-R.txt">site aqui</a>
-```{r}
-download.file("http://datacarpentry.org/semester-biology/solutions/Higher-order-functions-species-area-relationship-R.txt", "res_compara.txt")
-
-res.comp<-read.table("res_compara.txt", header=TRUE, sep=",")
-
-resultados<-cbind(areas, rowMeans(mods), res.comp)
-```
-
-Visualizando as médias e comparando com o apresentado pelo site como correto.
-```{r}
-kable(resultados)
-```
-
-#RESULTADOS DIFEREM, VERIFICAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 ### Plotando os resultados
 
 Terminamos agora com a visualização gráfica das curvas, para que possamos analisar as diferenças entre as predições dos diferentes modelos.
 
 Vamos ver graficamente o resultado dos nossos modelos
 ```{r, eval=TRUE}
-plot(areas$V1, mod1$V1, xlab="Áreas", ylab="Espécies")
-points(areas$V1, mod2$V1, col="red")
-points(areas$V1, mod3$V1, col="blue")
-points(areas$V1, mod4$V1, col="purple")
-points(areas$V1, mod5$V1, col="brown")
+plot(mods$Areas, mods$PowerQuadratic, xlab="Áreas", ylab="Espécies" )
+points(mods$Areas, mods$Power, col="red")
+points(mods$Areas, mods$Logarithmic, col="blue")
+points(mods$Areas, mods$'Michaelis-Menten', col="purple")
+points(mods$Areas, mods$Lomolino, col="brown")
 ```
 
 Vamos ver também na escala log10, que como vimos na aula teórica, "lineariza" as relações.
 ```{r, eval=TRUE}
-plot(log10(areas$V1), log10(mod1$V1), xlab="log10 Áreas", ylab="log10 Espécies")
-points(log10(areas$V1), log10(mod2$V1), col="red")
-points(log10(areas$V1), log10(mod3$V1), col="blue")
-points(log10(areas$V1), log10(mod4$V1), col="purple")
-points(log10(areas$V1), log10(mod5$V1), col="brown")
+plot(log10(mods$Areas), log10(mods$PowerQuadratic), xlab="Áreas", ylab="Espécies" )
+points(log10(mods$Areas), log10(mods$Power), col="red")
+points(log10(mods$Areas), log10(mods$Logarithmic), col="blue")
+points(log10(mods$Areas), log10(mods$'Michaelis-Menten'), col="purple")
+points(log10(mods$Areas), log10(mods$Lomolino), col="brown")
 ```
 
 
 Note que a relação aqui ficou log10 x log10
 
+Agora iremos fazer um boxplot para vermos um pouco da variação que os modelos geram na previsão de riqueza das ilhas
+```{r}
+long<-gather(mods[,2:6])
+l<-cbind(long, areas)
+```
+
+```{r}
+kable(l)
+```
+
+
+```{r, fig.align='center'}
+boxplot(value ~ V1, data=l, xlab="Tamanho das ilhas", ylab="Número de espécies")
+```
+
+
 ### Perguntas
 
-Agora que avaliamos os modelos para as ilhas do exercício, vamos assumir que estamos pensando em amostrar outras 3 ilhas, cujos tamanhos são  10, 100 e 1000 ha. Como os modelos se comportam para ilhas com estes tamanhos? Onde vai haver a maior diferença entre os modelos? Como isso pode afetar a utilização destes modelos para a tomada de decisão, caso estejamos por exemplo, interessados em entender um determinado impacto nestas ilhas?
+P1: Agora que avaliamos os modelos para as ilhas do exercício, vamos assumir que estamos pensando em amostrar outras 4 ilhas, cujos tamanhos são  20, 100, 1000 e 10000 ha. Como os modelos se comportam para ilhas com estes tamanhos? Onde vai haver a maior diferença entre os modelos? Como isso pode afetar a utilização destes modelos para a tomada de decisão, caso estejamos por exemplo, interessados em entender um determinado impacto nestas ilhas?
 
+Gere figuras com estas novas ilhas inclusas e discuta os resultados
 
+P2: Discuta alguns fatores ecológicos que podem afetar o número de espécies em uma ilha.
 
 **Coisas ainda pra fazer:** 
 

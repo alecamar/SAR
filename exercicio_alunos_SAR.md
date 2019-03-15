@@ -1,7 +1,7 @@
 ---
 title: "SAR exercicio pratico"
 author: "Alexandre Camargo Martensen"
-date: '2019-03-11 09:57:14'
+date: '2019-03-15 16:26:45'
 output: 
   html_document:
      keep_md: yes
@@ -24,27 +24,11 @@ Esse exercício que iremos fazer é adaptado do curso <a href="http://datacarpen
 
 http://datacarpentry.org/semester-biology/exercises/Higher-order-functions-species-area-relationship-R/
 
-Nós iremos trabalhar com 5 dos modelos mais comuns que tentam modelar a relação espécie-área, contudo, muitos autores apontam que existem pelo menos 20 modelos com relativo suporte para explicar a relação espécie *vs.* área. 
+Nós iremos trabalhar com 5 dos modelos mais comuns que tentam modelar a relação espécie-área em ilhas (ver <a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">Dengler e Oldeland (2010) - o artigo é full open access - </a>), contudo, muitos autores apontam que existem pelo menos 20 modelos com relativo suporte para explicar a relação espécie *vs.* área. 
 
 <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2699.2008.02038.x">Dengler 2009</a> fez uma revisão desses modelos, e cita muitos artigos que discutem uma série de outros modelos, e inclusivem que discutem as similaridades, diferenças e confusões entre os modelos **espécie-área (SAR - Species Area Relatioship)** e os de **amostragem de espécies (SSR - Species Sampling Relationships)**, conforme discutimos na aula teórica.
 
-## Os modelos
-
-Os 5 modelos que iremos trabalhar são definidos por <a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">Dengler e Oldeland (2010) - o artigo é full open access - </a>como:
-
-Potência: S = b0 * A^b1
-
-Potência-quadrada: S = 10^(b0 + b1 * log(A) + b2 * log(A)^2)
-
-Logarítmico: S = b0 + b1 * log(A)
-
-Michaelis-Menten: S = b0 * A / (b1 + A)
-
-Lomolino: S = b0 / (1 + b1^log(b2/A))
-
-Estes modelos, bem como outros tantos são mais bem explorados no artigo de <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2699.2008.02038.x">Dengler de 2009</a> também full open access.
-
-Ambos artigos estão disponíveis na pasta "./pdfs" do projeto (para quem baixou a pasta integralmente, o que eu recomendo... sempre!).
+Ambos artigos estão disponíveis na pasta "./pdfs" do projeto.
 
 _______
 
@@ -56,18 +40,16 @@ Pacotes que necessitaremos
 
 ```r
 library(knitr) #Apenas para visualização das tabelas em um formato mais amigável
+library(tidyr) #Para fazer as manipulacoes nas tabelas no fim para analise
+```
+
+```
+## Warning: package 'tidyr' was built under R version 3.5.3
 ```
 
 ### Entrada de dados
 
-Inicialmente iremos entrar com os dados do tamanho das ilhas, criando o objeto *area*, que irá armazenar estes valores.
-
-Caso você tenha baixado a pasta do projeto, pule este bloco de códigos e baixe diretamente a planilha "sar-areas.csv", conforme o código na sequência abaixo. 
-
-```r
-areas<-data.frame(c(1, 5.2, 10.95, 152.3, 597.6, 820, 989.8, 1232.5, 15061))
-colnames(areas)<-"V1"
-```
+Inicialmente iremos entrar com os dados do tamanho das ilhas, criando o objeto *areas*, que irá armazenar estes valores.
 
 Através desse código, você consegue baixar diretamente a planilha com os dados das áreas amostradas.
 
@@ -94,19 +76,10 @@ areas
 ## 9 15061.00
 ```
 
-Posteriormente iremos entrar com os parâmetros das equações que são dados (<a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">artigo Dengler and Oldeland (2010)</a>)
+Posteriormente iremos entrar com os parâmetros das equações que são dados no (<a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">artigo de Dengler and Oldeland (2010)</a>)
 
 ```r
 parametros<-read.csv("sar-model-data.csv", header=FALSE)
-colnames(parametros)<-c("modelos", "b0", "b1", "b2")
-```
-
-Para quem não baixou as planilhas, entre com os dados manualmente
-
-```r
-parametros <- data.frame(rbind(c(20.81, 0.1896, NA), c(1.35, 0.1524, 0.0081),
-c(14.36, 21.16, NA), c(85.91, 42.57, NA), c(1082.45, 1.59, 390000000)))
-parametros<-cbind(c("Power", "PowerQuadratic", "Logarithmic", "MichaelisMenten", "Lomolino"), parametros)
 colnames(parametros)<-c("modelos", "b0", "b1", "b2")
 ```
 
@@ -138,7 +111,7 @@ potencia<-function(b0, Areas, b1){
 }
 
 pot_quadrada<-function(b0, b1, Areas, b2){
-  10^(b0 + b1 * log10(Areas) + b2 * (log(Areas))^2)
+  10^(b0 + b1 * log10(Areas) + b2 * log10(Areas)^2)
 }
 
 loga<-function(b0, b1, Areas){
@@ -150,7 +123,7 @@ MM<-function(b0, Areas, b1){
 }
 
 Lomo<-function(b0, b1, b2, Areas){
-  b0/(1 + b1^(log10(b2/Areas)))
+  b0/(1 + b1^log10(b2/Areas))
 }
 ```
 
@@ -170,7 +143,10 @@ Organizando os resultados
 
 ```r
 mods<-cbind(mod1, mod2, mod3, mod4, mod5)
-colnames(mods)<-c("Power", "PowerQuadratic", "Logarithmic", "Michaelis-Menten", "Lomolino")
+stdev<-apply(mods,1,sd)
+media<-rowSums(mods)/5
+mods<-cbind(areas, mods, media, stdev, stdev/media)
+colnames(mods)<-c("Areas", "Power", "PowerQuadratic", "Logarithmic", "Michaelis-Menten", "Lomolino", "Medias", "Desvio Padrao", "CV")
 ```
 
 Visualizando os resultados
@@ -179,47 +155,17 @@ Visualizando os resultados
 kable(mods)
 ```
 
-     Power   PowerQuadratic   Logarithmic   Michaelis-Menten    Lomolino
-----------  ---------------  ------------  -----------------  ----------
-  20.81000         22.38721      14.36000           1.971770    19.77805
-  28.44633         30.27857      29.51063           9.351727    27.36975
-  32.76008         35.87601      36.35400          17.576878    31.66880
-  53.96498         77.13348      60.54593          67.142675    52.73406
-  69.93258        127.10642      73.10885          80.197160    68.39243
-  74.25594        144.10692      76.01630          81.670125    72.59037
-  76.95341        155.55478      77.74578          82.367483    75.19974
-  80.22048        170.33015      79.76105          83.041774    78.34964
- 128.94163        544.87057     102.76339          85.667859   123.83319
-
-Obtendo a média dos resultados para comparar com o resultado dado no <a href="http://datacarpentry.org/semester-biology/solutions/Higher-order-functions-species-area-relationship-R.txt">site aqui</a>
-
-```r
-download.file("http://datacarpentry.org/semester-biology/solutions/Higher-order-functions-species-area-relationship-R.txt", "res_compara.txt")
-
-res.comp<-read.table("res_compara.txt", header=TRUE, sep=",")
-
-resultados<-cbind(areas, rowMeans(mods), res.comp)
-```
-
-Visualizando as médias e comparando com o apresentado pelo site como correto.
-
-```r
-kable(resultados)
-```
-
-       V1   rowMeans(mods)    X       area   avg_pred_S
----------  ---------------  ---  ---------  -----------
-     1.00         15.86141    1       1.00       11.928
-     5.20         24.99140    2       5.20       19.322
-    10.95         30.84715    3      10.95       23.986
-   152.30         62.30422    4     152.30       47.087
-   597.60         83.74749    5     597.60       58.778
-   820.00         89.72793    6     820.00       61.475
-   989.80         93.56424    7     989.80       63.106
-  1232.50         98.34062    8    1232.50       65.041
- 15061.00        197.21533    9   15061.00       92.263
-
-#RESULTADOS DIFEREM, VERIFICAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Areas       Power   PowerQuadratic   Logarithmic   Michaelis-Menten    Lomolino      Medias   Desvio Padrao          CV
+---------  ----------  ---------------  ------------  -----------------  ----------  ----------  --------------  ----------
+     1.00    20.81000         22.38721      14.36000           1.971770    19.77805    15.86141        8.330532   0.5252076
+     5.20    28.44633         29.05838      29.51063           9.351727    27.36975    24.74736        8.643763   0.3492801
+    10.95    32.76008         32.89711      36.35400          17.576878    31.66880    30.25138        7.300472   0.2413270
+   152.30    53.96498         52.62999      60.54593          67.142675    52.73406    57.40353        6.347044   0.1105689
+   597.60    69.93258         68.47995      73.10885          80.197160    68.39243    72.02219        4.952274   0.0687604
+   820.00    74.25594         72.91834      76.01630          81.670125    72.59037    75.49021        3.708610   0.0491270
+   989.80    76.95341         75.71906      77.74578          82.367483    75.19974    77.59709        2.849008   0.0367154
+  1232.50    80.22048         79.14344      79.76105          83.041774    78.34964    80.10328        1.786207   0.0222988
+ 15061.00   128.94163        134.30311     102.76339          85.667859   123.83319   115.10184       20.341225   0.1767237
 
 ### Plotando os resultados
 
@@ -228,33 +174,106 @@ Terminamos agora com a visualização gráfica das curvas, para que possamos ana
 Vamos ver graficamente o resultado dos nossos modelos
 
 ```r
-plot(areas$V1, mod1$V1, xlab="Áreas", ylab="Espécies")
-points(areas$V1, mod2$V1, col="red")
-points(areas$V1, mod3$V1, col="blue")
-points(areas$V1, mod4$V1, col="purple")
-points(areas$V1, mod5$V1, col="brown")
+plot(mods$Areas, mods$PowerQuadratic, xlab="Áreas", ylab="Espécies" )
+points(mods$Areas, mods$Power, col="red")
+points(mods$Areas, mods$Logarithmic, col="blue")
+points(mods$Areas, mods$'Michaelis-Menten', col="purple")
+points(mods$Areas, mods$Lomolino, col="brown")
 ```
 
-![](exercicio_alunos_SAR_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+![](exercicio_alunos_SAR_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 Vamos ver também na escala log10, que como vimos na aula teórica, "lineariza" as relações.
 
 ```r
-plot(log10(areas$V1), log10(mod1$V1), xlab="log10 Áreas", ylab="log10 Espécies")
-points(log10(areas$V1), log10(mod2$V1), col="red")
-points(log10(areas$V1), log10(mod3$V1), col="blue")
-points(log10(areas$V1), log10(mod4$V1), col="purple")
-points(log10(areas$V1), log10(mod5$V1), col="brown")
+plot(log10(mods$Areas), log10(mods$PowerQuadratic), xlab="Áreas", ylab="Espécies" )
+points(log10(mods$Areas), log10(mods$Power), col="red")
+points(log10(mods$Areas), log10(mods$Logarithmic), col="blue")
+points(log10(mods$Areas), log10(mods$'Michaelis-Menten'), col="purple")
+points(log10(mods$Areas), log10(mods$Lomolino), col="brown")
 ```
 
-![](exercicio_alunos_SAR_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
+![](exercicio_alunos_SAR_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
 
 
 Note que a relação aqui ficou log10 x log10
 
+Agora iremos fazer um boxplot para vermos um pouco da variação que os modelos geram na previsão de riqueza das ilhas
+
+```r
+long<-gather(mods[,2:6])
+l<-cbind(long, areas)
+```
+
+
+```r
+kable(l)
+```
+
+
+
+key                      value         V1
+-----------------  -----------  ---------
+Power                20.810000       1.00
+Power                28.446335       5.20
+Power                32.760083      10.95
+Power                53.964975     152.30
+Power                69.932576     597.60
+Power                74.255938     820.00
+Power                76.953411     989.80
+Power                80.220485    1232.50
+Power               128.941632   15061.00
+PowerQuadratic       22.387211       1.00
+PowerQuadratic       29.058384       5.20
+PowerQuadratic       32.897114      10.95
+PowerQuadratic       52.629993     152.30
+PowerQuadratic       68.479955     597.60
+PowerQuadratic       72.918336     820.00
+PowerQuadratic       75.719057     989.80
+PowerQuadratic       79.143442    1232.50
+PowerQuadratic      134.303109   15061.00
+Logarithmic          14.360000       1.00
+Logarithmic          29.510631       5.20
+Logarithmic          36.354003      10.95
+Logarithmic          60.545930     152.30
+Logarithmic          73.108848     597.60
+Logarithmic          76.016301     820.00
+Logarithmic          77.745784     989.80
+Logarithmic          79.761051    1232.50
+Logarithmic         102.763387   15061.00
+Michaelis-Menten      1.971770       1.00
+Michaelis-Menten      9.351727       5.20
+Michaelis-Menten     17.576878      10.95
+Michaelis-Menten     67.142675     152.30
+Michaelis-Menten     80.197160     597.60
+Michaelis-Menten     81.670125     820.00
+Michaelis-Menten     82.367483     989.80
+Michaelis-Menten     83.041774    1232.50
+Michaelis-Menten     85.667859   15061.00
+Lomolino             19.778052       1.00
+Lomolino             27.369748       5.20
+Lomolino             31.668800      10.95
+Lomolino             52.734060     152.30
+Lomolino             68.392427     597.60
+Lomolino             72.590374     820.00
+Lomolino             75.199737     989.80
+Lomolino             78.349642    1232.50
+Lomolino            123.833194   15061.00
+
+
+
+```r
+boxplot(value ~ V1, data=l, xlab="Tamanho das ilhas", ylab="Número de espécies")
+```
+
+<img src="exercicio_alunos_SAR_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
+
+
 ### Perguntas
 
-Agora que avaliamos os modelos para as ilhas do exercício, vamos assumir que estamos pensando em amostrar outras 3 ilhas, cujos tamanhos são  10, 100 e 1000 ha. Como os modelos se comportam para ilhas com estes tamanhos? Onde vai haver a maior diferença entre os modelos? Como isso pode afetar a utilização destes modelos para a tomada de decisão, caso estejamos por exemplo, interessados em entender um determinado impacto nestas ilhas?
+Agora que avaliamos os modelos para as ilhas do exercício, vamos assumir que estamos pensando em amostrar outras 3 ilhas, cujos tamanhos são  20, 100, 1000 e 10000 ha. Como os modelos se comportam para ilhas com estes tamanhos? Onde vai haver a maior diferença entre os modelos? Como isso pode afetar a utilização destes modelos para a tomada de decisão, caso estejamos por exemplo, interessados em entender um determinado impacto nestas ilhas?
+
+Para resolver esse exercício, comece gerando um objeto com as áreas das novas ilhas a serem trabalhadas, e rode as funções novamente
 
 
 

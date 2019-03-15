@@ -371,7 +371,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">SAR exercicio pratico</h1>
 <h4 class="author"><em>Alexandre Camargo Martensen</em></h4>
-<h4 class="date"><em>2019-03-11 09:57:14</em></h4>
+<h4 class="date"><em>2019-03-15 16:26:45</em></h4>
 
 </div>
 
@@ -379,7 +379,6 @@ $(document).ready(function () {
 <ul>
 <li><a href="#exercicio-pratico-sobre-a-relacao-especie-area">Exercício prático sobre a <strong>Relação Espécie-Área</strong></a><ul>
 <li><a href="#apresentacao">Apresentação</a></li>
-<li><a href="#os-modelos">Os modelos</a></li>
 <li><a href="#o-codigo">O código</a><ul>
 <li><a href="#pacotes">Pacotes</a></li>
 <li><a href="#entrada-de-dados">Entrada de dados</a></li>
@@ -401,19 +400,9 @@ $(document).ready(function () {
 <p>A relação espécie-área é quase “universal”, e isso é algo que intriga muito os pesquisadores, uma vez que as espécies e os indivíduos não são homogêneamente distribuídos no espaço. Então, como essa relação pode ser universal?! Iremos discutir isso mais pra frente no curso, por enquanto, vá pensando sobre o assunto!</p>
 <p>Esse exercício que iremos fazer é adaptado do curso <a href="http://datacarpentry.org/semester-biology/">“Data Carpentry for Biologists”</a> que é muito bom e eu aconselho vocês a darem uma olhada. Esse exercício em especial vocês podem encontrar neste link:</p>
 <p><a href="http://datacarpentry.org/semester-biology/exercises/Higher-order-functions-species-area-relationship-R/" class="uri">http://datacarpentry.org/semester-biology/exercises/Higher-order-functions-species-area-relationship-R/</a></p>
-<p>Nós iremos trabalhar com 5 dos modelos mais comuns que tentam modelar a relação espécie-área, contudo, muitos autores apontam que existem pelo menos 20 modelos com relativo suporte para explicar a relação espécie <em>vs.</em> área.</p>
+<p>Nós iremos trabalhar com 5 dos modelos mais comuns que tentam modelar a relação espécie-área em ilhas (ver <a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">Dengler e Oldeland (2010) - o artigo é full open access - </a>), contudo, muitos autores apontam que existem pelo menos 20 modelos com relativo suporte para explicar a relação espécie <em>vs.</em> área.</p>
 <p><a href="https://onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2699.2008.02038.x">Dengler 2009</a> fez uma revisão desses modelos, e cita muitos artigos que discutem uma série de outros modelos, e inclusivem que discutem as similaridades, diferenças e confusões entre os modelos <strong>espécie-área (SAR - Species Area Relatioship)</strong> e os de <strong>amostragem de espécies (SSR - Species Sampling Relationships)</strong>, conforme discutimos na aula teórica.</p>
-</div>
-<div id="os-modelos" class="section level2">
-<h2>Os modelos</h2>
-<p>Os 5 modelos que iremos trabalhar são definidos por <a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">Dengler e Oldeland (2010) - o artigo é full open access - </a>como:</p>
-<p>Potência: S = b0 * A^b1</p>
-<p>Potência-quadrada: S = 10^(b0 + b1 * log(A) + b2 * log(A)^2)</p>
-<p>Logarítmico: S = b0 + b1 * log(A)</p>
-<p>Michaelis-Menten: S = b0 * A / (b1 + A)</p>
-<p>Lomolino: S = b0 / (1 + b1^log(b2/A))</p>
-<p>Estes modelos, bem como outros tantos são mais bem explorados no artigo de <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/j.1365-2699.2008.02038.x">Dengler de 2009</a> também full open access.</p>
-<p>Ambos artigos estão disponíveis na pasta “./pdfs” do projeto (para quem baixou a pasta integralmente, o que eu recomendo… sempre!).</p>
+<p>Ambos artigos estão disponíveis na pasta “./pdfs” do projeto.</p>
 <hr />
 </div>
 <div id="o-codigo" class="section level2">
@@ -421,14 +410,13 @@ $(document).ready(function () {
 <div id="pacotes" class="section level3">
 <h3>Pacotes</h3>
 <p>Pacotes que necessitaremos</p>
-<pre class="r"><code>library(knitr) #Apenas para visualização das tabelas em um formato mais amigável</code></pre>
+<pre class="r"><code>library(knitr) #Apenas para visualização das tabelas em um formato mais amigável
+library(tidyr) #Para fazer as manipulacoes nas tabelas no fim para analise</code></pre>
+<pre><code>## Warning: package 'tidyr' was built under R version 3.5.3</code></pre>
 </div>
 <div id="entrada-de-dados" class="section level3">
 <h3>Entrada de dados</h3>
-<p>Inicialmente iremos entrar com os dados do tamanho das ilhas, criando o objeto <em>area</em>, que irá armazenar estes valores.</p>
-<p>Caso você tenha baixado a pasta do projeto, pule este bloco de códigos e baixe diretamente a planilha “sar-areas.csv”, conforme o código na sequência abaixo.</p>
-<pre class="r"><code>areas&lt;-data.frame(c(1, 5.2, 10.95, 152.3, 597.6, 820, 989.8, 1232.5, 15061))
-colnames(areas)&lt;-&quot;V1&quot;</code></pre>
+<p>Inicialmente iremos entrar com os dados do tamanho das ilhas, criando o objeto <em>areas</em>, que irá armazenar estes valores.</p>
 <p>Através desse código, você consegue baixar diretamente a planilha com os dados das áreas amostradas.</p>
 <pre class="r"><code>areas&lt;-read.csv(&quot;sar-areas.csv&quot;, header=FALSE)</code></pre>
 <p>Visualizando as áreas das ilhas que iremos trabalhar.</p>
@@ -443,13 +431,8 @@ colnames(areas)&lt;-&quot;V1&quot;</code></pre>
 ## 7   989.80
 ## 8  1232.50
 ## 9 15061.00</code></pre>
-<p>Posteriormente iremos entrar com os parâmetros das equações que são dados (<a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">artigo Dengler and Oldeland (2010)</a>)</p>
+<p>Posteriormente iremos entrar com os parâmetros das equações que são dados no (<a href="https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2699.2010.02322.x">artigo de Dengler and Oldeland (2010)</a>)</p>
 <pre class="r"><code>parametros&lt;-read.csv(&quot;sar-model-data.csv&quot;, header=FALSE)
-colnames(parametros)&lt;-c(&quot;modelos&quot;, &quot;b0&quot;, &quot;b1&quot;, &quot;b2&quot;)</code></pre>
-<p>Para quem não baixou as planilhas, entre com os dados manualmente</p>
-<pre class="r"><code>parametros &lt;- data.frame(rbind(c(20.81, 0.1896, NA), c(1.35, 0.1524, 0.0081),
-c(14.36, 21.16, NA), c(85.91, 42.57, NA), c(1082.45, 1.59, 390000000)))
-parametros&lt;-cbind(c(&quot;Power&quot;, &quot;PowerQuadratic&quot;, &quot;Logarithmic&quot;, &quot;MichaelisMenten&quot;, &quot;Lomolino&quot;), parametros)
 colnames(parametros)&lt;-c(&quot;modelos&quot;, &quot;b0&quot;, &quot;b1&quot;, &quot;b2&quot;)</code></pre>
 <p>Visualizando os parâmetros</p>
 <pre class="r"><code>kable(parametros)</code></pre>
@@ -505,7 +488,7 @@ colnames(parametros)&lt;-c(&quot;modelos&quot;, &quot;b0&quot;, &quot;b1&quot;, 
 }
 
 pot_quadrada&lt;-function(b0, b1, Areas, b2){
-  10^(b0 + b1 * log10(Areas) + b2 * (log(Areas))^2)
+  10^(b0 + b1 * log10(Areas) + b2 * log10(Areas)^2)
 }
 
 loga&lt;-function(b0, b1, Areas){
@@ -517,7 +500,7 @@ MM&lt;-function(b0, Areas, b1){
 }
 
 Lomo&lt;-function(b0, b1, b2, Areas){
-  b0/(1 + b1^(log10(b2/Areas)))
+  b0/(1 + b1^log10(b2/Areas))
 }</code></pre>
 </div>
 <div id="obtencao-dos-resultados" class="section level3">
@@ -530,193 +513,394 @@ mod4&lt;-MM(parametros[4,&quot;b0&quot;], areas, parametros[4,&quot;b1&quot;])
 mod5&lt;-Lomo(parametros[5,&quot;b0&quot;], parametros[5,&quot;b1&quot;], parametros[5,&quot;b2&quot;], areas)</code></pre>
 <p>Organizando os resultados</p>
 <pre class="r"><code>mods&lt;-cbind(mod1, mod2, mod3, mod4, mod5)
-colnames(mods)&lt;-c(&quot;Power&quot;, &quot;PowerQuadratic&quot;, &quot;Logarithmic&quot;, &quot;Michaelis-Menten&quot;, &quot;Lomolino&quot;)</code></pre>
+stdev&lt;-apply(mods,1,sd)
+media&lt;-rowSums(mods)/5
+mods&lt;-cbind(areas, mods, media, stdev, stdev/media)
+colnames(mods)&lt;-c(&quot;Areas&quot;, &quot;Power&quot;, &quot;PowerQuadratic&quot;, &quot;Logarithmic&quot;, &quot;Michaelis-Menten&quot;, &quot;Lomolino&quot;, &quot;Medias&quot;, &quot;Desvio Padrao&quot;, &quot;CV&quot;)</code></pre>
 <p>Visualizando os resultados</p>
 <pre class="r"><code>kable(mods)</code></pre>
 <table>
 <thead>
 <tr class="header">
+<th align="right">Areas</th>
 <th align="right">Power</th>
 <th align="right">PowerQuadratic</th>
 <th align="right">Logarithmic</th>
 <th align="right">Michaelis-Menten</th>
 <th align="right">Lomolino</th>
+<th align="right">Medias</th>
+<th align="right">Desvio Padrao</th>
+<th align="right">CV</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td align="right">1.00</td>
 <td align="right">20.81000</td>
 <td align="right">22.38721</td>
 <td align="right">14.36000</td>
 <td align="right">1.971770</td>
 <td align="right">19.77805</td>
+<td align="right">15.86141</td>
+<td align="right">8.330532</td>
+<td align="right">0.5252076</td>
 </tr>
 <tr class="even">
+<td align="right">5.20</td>
 <td align="right">28.44633</td>
-<td align="right">30.27857</td>
+<td align="right">29.05838</td>
 <td align="right">29.51063</td>
 <td align="right">9.351727</td>
 <td align="right">27.36975</td>
+<td align="right">24.74736</td>
+<td align="right">8.643763</td>
+<td align="right">0.3492801</td>
 </tr>
 <tr class="odd">
+<td align="right">10.95</td>
 <td align="right">32.76008</td>
-<td align="right">35.87601</td>
+<td align="right">32.89711</td>
 <td align="right">36.35400</td>
 <td align="right">17.576878</td>
 <td align="right">31.66880</td>
+<td align="right">30.25138</td>
+<td align="right">7.300472</td>
+<td align="right">0.2413270</td>
 </tr>
 <tr class="even">
+<td align="right">152.30</td>
 <td align="right">53.96498</td>
-<td align="right">77.13348</td>
+<td align="right">52.62999</td>
 <td align="right">60.54593</td>
 <td align="right">67.142675</td>
 <td align="right">52.73406</td>
+<td align="right">57.40353</td>
+<td align="right">6.347044</td>
+<td align="right">0.1105689</td>
 </tr>
 <tr class="odd">
+<td align="right">597.60</td>
 <td align="right">69.93258</td>
-<td align="right">127.10642</td>
+<td align="right">68.47995</td>
 <td align="right">73.10885</td>
 <td align="right">80.197160</td>
 <td align="right">68.39243</td>
+<td align="right">72.02219</td>
+<td align="right">4.952274</td>
+<td align="right">0.0687604</td>
 </tr>
 <tr class="even">
+<td align="right">820.00</td>
 <td align="right">74.25594</td>
-<td align="right">144.10692</td>
+<td align="right">72.91834</td>
 <td align="right">76.01630</td>
 <td align="right">81.670125</td>
 <td align="right">72.59037</td>
+<td align="right">75.49021</td>
+<td align="right">3.708610</td>
+<td align="right">0.0491270</td>
 </tr>
 <tr class="odd">
+<td align="right">989.80</td>
 <td align="right">76.95341</td>
-<td align="right">155.55478</td>
+<td align="right">75.71906</td>
 <td align="right">77.74578</td>
 <td align="right">82.367483</td>
 <td align="right">75.19974</td>
+<td align="right">77.59709</td>
+<td align="right">2.849008</td>
+<td align="right">0.0367154</td>
 </tr>
 <tr class="even">
+<td align="right">1232.50</td>
 <td align="right">80.22048</td>
-<td align="right">170.33015</td>
+<td align="right">79.14344</td>
 <td align="right">79.76105</td>
 <td align="right">83.041774</td>
 <td align="right">78.34964</td>
+<td align="right">80.10328</td>
+<td align="right">1.786207</td>
+<td align="right">0.0222988</td>
 </tr>
 <tr class="odd">
+<td align="right">15061.00</td>
 <td align="right">128.94163</td>
-<td align="right">544.87057</td>
+<td align="right">134.30311</td>
 <td align="right">102.76339</td>
 <td align="right">85.667859</td>
 <td align="right">123.83319</td>
+<td align="right">115.10184</td>
+<td align="right">20.341225</td>
+<td align="right">0.1767237</td>
 </tr>
 </tbody>
 </table>
-<p>Obtendo a média dos resultados para comparar com o resultado dado no <a href="http://datacarpentry.org/semester-biology/solutions/Higher-order-functions-species-area-relationship-R.txt">site aqui</a></p>
-<pre class="r"><code>download.file(&quot;http://datacarpentry.org/semester-biology/solutions/Higher-order-functions-species-area-relationship-R.txt&quot;, &quot;res_compara.txt&quot;)
-
-res.comp&lt;-read.table(&quot;res_compara.txt&quot;, header=TRUE, sep=&quot;,&quot;)
-
-resultados&lt;-cbind(areas, rowMeans(mods), res.comp)</code></pre>
-<p>Visualizando as médias e comparando com o apresentado pelo site como correto.</p>
-<pre class="r"><code>kable(resultados)</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th align="right">V1</th>
-<th align="right">rowMeans(mods)</th>
-<th align="right">X</th>
-<th align="right">area</th>
-<th align="right">avg_pred_S</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">1.00</td>
-<td align="right">15.86141</td>
-<td align="right">1</td>
-<td align="right">1.00</td>
-<td align="right">11.928</td>
-</tr>
-<tr class="even">
-<td align="right">5.20</td>
-<td align="right">24.99140</td>
-<td align="right">2</td>
-<td align="right">5.20</td>
-<td align="right">19.322</td>
-</tr>
-<tr class="odd">
-<td align="right">10.95</td>
-<td align="right">30.84715</td>
-<td align="right">3</td>
-<td align="right">10.95</td>
-<td align="right">23.986</td>
-</tr>
-<tr class="even">
-<td align="right">152.30</td>
-<td align="right">62.30422</td>
-<td align="right">4</td>
-<td align="right">152.30</td>
-<td align="right">47.087</td>
-</tr>
-<tr class="odd">
-<td align="right">597.60</td>
-<td align="right">83.74749</td>
-<td align="right">5</td>
-<td align="right">597.60</td>
-<td align="right">58.778</td>
-</tr>
-<tr class="even">
-<td align="right">820.00</td>
-<td align="right">89.72793</td>
-<td align="right">6</td>
-<td align="right">820.00</td>
-<td align="right">61.475</td>
-</tr>
-<tr class="odd">
-<td align="right">989.80</td>
-<td align="right">93.56424</td>
-<td align="right">7</td>
-<td align="right">989.80</td>
-<td align="right">63.106</td>
-</tr>
-<tr class="even">
-<td align="right">1232.50</td>
-<td align="right">98.34062</td>
-<td align="right">8</td>
-<td align="right">1232.50</td>
-<td align="right">65.041</td>
-</tr>
-<tr class="odd">
-<td align="right">15061.00</td>
-<td align="right">197.21533</td>
-<td align="right">9</td>
-<td align="right">15061.00</td>
-<td align="right">92.263</td>
-</tr>
-</tbody>
-</table>
-<p>#RESULTADOS DIFEREM, VERIFICAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</p>
 </div>
 <div id="plotando-os-resultados" class="section level3">
 <h3>Plotando os resultados</h3>
 <p>Terminamos agora com a visualização gráfica das curvas, para que possamos analisar as diferenças entre as predições dos diferentes modelos.</p>
 <p>Vamos ver graficamente o resultado dos nossos modelos</p>
-<pre class="r"><code>plot(areas$V1, mod1$V1, xlab=&quot;Áreas&quot;, ylab=&quot;Espécies&quot;)
-points(areas$V1, mod2$V1, col=&quot;red&quot;)
-points(areas$V1, mod3$V1, col=&quot;blue&quot;)
-points(areas$V1, mod4$V1, col=&quot;purple&quot;)
-points(areas$V1, mod5$V1, col=&quot;brown&quot;)</code></pre>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
+<pre class="r"><code>plot(mods$Areas, mods$PowerQuadratic, xlab=&quot;Áreas&quot;, ylab=&quot;Espécies&quot; )
+points(mods$Areas, mods$Power, col=&quot;red&quot;)
+points(mods$Areas, mods$Logarithmic, col=&quot;blue&quot;)
+points(mods$Areas, mods$'Michaelis-Menten', col=&quot;purple&quot;)
+points(mods$Areas, mods$Lomolino, col=&quot;brown&quot;)</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqAAAAHgCAMAAABNUi8GAAAAZlBMVEUAAAAAADoAAGYAAP8AOjoAOpAAZrY6AAA6ADo6AGY6Ojo6kNtmAABmADpmZjpmtv+QOgCQkGaQtv+Q2/+gIPClKiq2ZgC225C2/7a2///bkDrb////AAD/tmb/25D//7b//9v////vl64pAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAOkUlEQVR4nO3djXqiSAJGYdJMTM9ob9yNujME/+7/JqcoQKlGDD9V5NM677PxcTvbyjpnkCqUSs6AsOS7NwC4h0AhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhzXOgCdDLdwXq9+HwrAgU0ggU0ggU0ggU0ggU0ggU0ggUKm5OehIoRCTnW1kQKDQkjdvWH/f++94QKFwECmkECm0cg0Ibo3g8HgKFNAKFNAKFNAKFNAKFNAKFNAKFijzP239IoBCRVz8uAoWGvHHbQKDQQKCQRqDQxjEotDGKx+MhUEgjUEgjUEgjUEgjUEgLFOhpXV6/+cc/Xh4OMdhut+0/DBNolizLO/v6zqSHQwy21Y8rSKCn9SXL7PVz8sMhBtvGbUOQQI+r9/ruvuNNnkDhmjNQ9qAYbM5AzTFotQvlGBR9zXgMWrzJl6P4jv0ngaJtxlH87A+HZ0WgkBYo0My8vdvD0IxRPKYINEh6+TCHoYszgWKigNNMp7UZIhEoJgk6Ub97/fwt0OGrLCNuYSfqdwv2oJgk0DFoleVx1fV5JgJFL8FG8eWb/GlNoJiCeVBII1BII1BII1BICzQPep3vZJCEKcLsQTsH7+MeDvEK9q3Ohc+HQ7RCHYPuk/e7vydQ9MIgCdIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNKCXTzs7sUXCRQ9BVrlo16Fm+W4MU3YdZJMqh0LchMofpemafsPg640Z+y5wjL6SasfF3tQaEgbtw2hjkGrXSjHoOhp1kAvyyh07D8JFL+bN9C5Hw6Pb8Zj0PkfDk9gvlE8E/XwhYl6SGOaCdJmnqi/LpE44OEQMfagkMZEPaQxUQ9pzINCGoFCGoFCGoFCWqB50Ot8Jx9YxhRh9qCndedJ+DEPh3gF+7DIwufDIVqhjkH3yfvd3xMoemGQBGkECmkECmkECmkECmkECmkECmkECmkECmkECmkjAj2ulufszrc5/D4v4jYi0N3r5+Ftcd598XEQT8+LuA0PtPjSe/FRkK5L03p+XsRtXKA7E2dGoAhvzFv84rh6/TyueItHeKMGScnLx5efSPb1vIgb00yQRqCQNiZQ8x7/+rnruOiS7+dF3EYEun/5yIpB0qRCCRS9DA+0uLZicVFFppkwg3HzoEWgTNTDr81m0/7D8XvQ3aST8QSK32yqH9foY9Dsiy++9344oLBp3DaMHMUnycvHpM0hULg8BuoDgcJFoNDm7RjUi2kPd3O8hwfnYxR/XC0vF//8vmmm2/+u4Rk91B60+les42gFzyjY9UEDLCa7OTd3ngQahTGBFlP0nSt0Wf4Xk93UBygbAo3KuC/NnYuj0e5PLPtfCtHdcXIMGo9x5+ILd87Fdy8mO/x5rfLQc9O4S5+RGHcuvnDn00we96Bliu7O83zO87zn38eDG/EWX56FP7zdOQj1tphs1WQVaL3jzNM0pdA4jBkkHd6+PBfvaTFZZ1x0eVfPU3NDoXHQngdtvLU3jjrTs0n/nPrdIGiaOdDrCnS9/ue3J5TS4i8nBBqFQF+a2yXJwk7Wd31odNgxqCvNt9ttTqBRGBjo4X+9vjRnP3GfLMor4U16XmdCyYyN7N/dmlH8ls9DRWFooG/LHl+as9NMezuM8jRRb6XVz9aWuh3xCHg4Q9/iD3/+/fWX5uxEffl7PxP1VmqnP02hdueZEGgUgnxpLswe1E4sFYeeWzuKJ9AohPnS3OUYtHFOaeTzXqWX2231g+cX6EtzvkbxF8W5o9Q8Xjk/b0bxA/8+HpT2RP2FHR8lptKEE0hxeYxAy9mltJj+ZHYpLqPf4qct8jEqUKY/IzRukGRus2lXbhgaaNGmzZSDz7iMmWYqBz6zXpvJjt2Z/ozQiE/U/yp3nXNe3S4vRvHm+JPpz+iM34N2TcH7fd7y9Hs5dGf6M0JjjkHt5OY8V7erTr/nduYzZ/ozPmO+NHf9UOf4d/l+z3s5ecTOM1ba86B1oFv7OREKjdCjBFog0AiNCHTO5birY1ACjda4K4vMtxx39SF6jkFjNe7KIvMvx80APlLjAp1vOW6uIRK5MW/xMy7HnZ/rWXrEadQgabbluPPGLaKkPc1EoNFTD9Se4vT71HgkgxdR+PLKn16fl+ml2I0JtPyq5hyBcoozenKBOte64QxS9NQCda8WRqDREwv09+stcgwaO/FAOcUZO/VAETmxQFkCCa7Bgfr4vse952UJJDRpn0lC9AgU0ggU0ggU0ggU0ggU0gIFai//fW8qikDRS5hAs3qR46mrHSN2QQL1uF48Ihck0B6fuydQ9CK3B60uJQJYoY5Bq13o4GPQej1OwAo0iq8/VNJ5hbGOh0sbt4DcPCiBwjVzoNcP693+PYHCFSjQ4upih7eke0VPjkHRS5hAbZ8/P5wJp54PxygeTYHmQZfn6gK3TNRjkmAT9dVcKBP1mCTQW7zZe2bsQTFdmECPqx//2F3ovmuURKDoJdQ0076cTOq8yi2BohexiXrARaCQRqCQRqCQJhcoCyOhSS1QFkaCQyxQ1p2BSy5Q1p1Bk1qg9prfBIqaWKC2zZyrfqOmFigLI8EhF+j1FpALlHVn4FILlHVn4JALFGgiUEgjUEgjUEgjUEgjUEgjUEgjUEgjUEgjUEgjUEgjUEgjUEgjUEgjUEgjUEgjUEgjUEgjUEgjUEgLFOhpXV4CvGONDwJFT2ECzepFjgevdgw4ggQ6Zb14oCnYQl4VFvLCJOxBIS3UMWi1C+UYFNMEGsUfV+UovmP/SaDoiXlQSJs50OTCy8Ph6QUN9PD23vUrAkUvgaaZrntKppkwRZg9aDV4Zw+KqYKN4ovxO4FiqmDHoLuXDwLFZOEGSVmyHBhomqZDnwTPLuAo/vD2x6BA0+oHuAo5zXRaJwMCTRu3QEXnTBKB4gYChTSdQDkGxQ1CgTKKR5tSoEALgUKaUqDFStyAQyjQvPoBrnQCzRu3QEUp0GIlbgKFQyjQYp34LYHCoROobdNWClwIBWpH8QQKh1Kg11ugohPoeZumKX3CJRRoakbxnIyHSyfQtLiqAx9ngkso0MQMkhIChUMoUDvNRKBw6ARq20yZqIdDKFBOdaJNKFBOdaJNJ9BtbkbxnOqESyhQTnWiTSnQ6y1Q0QnUtkmfcAkFakfxgEMpUKCFQCGNQCGNQCGNQCFNKVCW90JLoEBP67urJN18uGTws+D5hQk0qxc5HrDacTL8afD8ggQ6ar14AsUNQQI9ri6LJ+x7L4WY2A+LECgcOntQrm6HG0Idg1a70AHHoLkdxVMoHIFG8fV6xx37T77ygZ505kH5ygdumDnQ6zryrV9xdTvcECjQzCRoD0Oz3qN4vvKBGwINkl4+zGHo4jws0OstUAk4zXRamyFS/0DP281mQ59wBZ2o371+Dgh0Y0bxmwHPghiEnajfLfoHumncApVAx6BVlsdV1+eZkpZN4xaoBQn0cirptO78wN3k5/hObKl/E7d0jv+j0byYM4pmSwm0iS31j0A9Ykv9I1CP2FL/CNQjttQ/AvWILfWPQD1iS/0jUI/YUv8eIFBgNAKFNAKFNAKFNAKFNAKFNAKFNAKFNAKFNAKFNAKFNAKFNAKFtOCB7pPk5SP0k4xUXk2yuJTPZSvbdwQc/rTfob2zkSpbW26pz9c1dKB7szV7idfuhsPPasMuW9m+I+C4sl/yvrORKltbbanP1zVwoOXFSHaLsM8yVn2l/ctWtu8I2JfL/tzZSJWtrbbU6+saONDDW3Glh64L5Xy3rHqhLlvZvvONW1fZJ0v7D/zORopsbb2lXl/X0IHanX3XmiDfbfeXOVRaNrayfeebt7BUBtq9kTpbW26Dz9c1cKDl4YbC4dENx1Vxrf3d8rqV7TvfvIkl+w/0zkbqbK3dUq+va8yBlsxrqvyPvPBggV7uPkCgOm8+ncxhkfKbZuHR3uItT69r1IMky7xmssOOyoMMks5uoH5e15inmcpXy7ymuhM3pf2DTDM5/yp5el2jnqi3L5Q5mBee+rb2jzJRX4/iPb6uwU91ZonGSbibdkm9rE5SbWX7joDqjfPORqpsbbWlHl9XPiwCaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQQKaQTq3T4RuAbN0yBQ38rLD8ETAoU0AvVul7AL9YdAfTv8/I/AhTqfBoH6lv34v70+JrwgUM9O64X5j7lz/PXfYtWgrFzw4npJwsNbfW1C9ECgnhVXZ82KK2CWa10Udw9vy/KiruV/eS9moii0JwL1bGeyPK6W58ZNcVnX46+P8trYCksdPBIC9cvuLc87U+Fx9V4vuFJetL1YKfC9Xs4SPRGoX8UhZ5KUJdr38vq/ml+Uo6fTmmPQAQjUq3J8ZOJcNPeg52oneqiH9zuJC8o/BAL1qg7SDIdsoPbG/sIuFlfvOS9/jK8QqFfFEKlgDkXLCO2A3uwwi53ncZUsr4uxoBcC9enyHm6GSX+v6oVY7CLqdvmV4q29OCylz94IFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNL+BXNJyFWP6jj3AAAAAElFTkSuQmCC" /><!-- --></p>
 <p>Vamos ver também na escala log10, que como vimos na aula teórica, “lineariza” as relações.</p>
-<pre class="r"><code>plot(log10(areas$V1), log10(mod1$V1), xlab=&quot;log10 Áreas&quot;, ylab=&quot;log10 Espécies&quot;)
-points(log10(areas$V1), log10(mod2$V1), col=&quot;red&quot;)
-points(log10(areas$V1), log10(mod3$V1), col=&quot;blue&quot;)
-points(log10(areas$V1), log10(mod4$V1), col=&quot;purple&quot;)
-points(log10(areas$V1), log10(mod5$V1), col=&quot;brown&quot;)</code></pre>
-<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqAAAAHgCAMAAABNUi8GAAAAaVBMVEUAAAAAACsAAFUAAP8AKysAK4AAVaorAAArACsrAFUrgNRVAABVACtVVStVqv+AKwCAVQCAgFWAqv+A1P+gIPClKiqqVQCqqlWq1ICq/6qq///UgCvU////AAD/qlX/1ID//6r//9T///9E4oqCAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAOz0lEQVR4nO3dDXuiygGG4dnYJHvi6XpOE23PElH5/z+yfKlExMAww7wDz31dsdttFvLxdGQQGZMBwkzoLwB4hEAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhjUAhzXGgBuglVKBuN4e5IlBII1BII1BII1BII1BII1BII1CouHvSk0AhwmT3siBQaDCNx9Zf9/73zhDoNPb7fegvoScCXaJ9/REBAl2gfeNRHsegyxNVoMzilyeuQLfbbfsvCXTWIjoGzbb1x1cEOm/xzOK3jccGAoUGAoU0AoU2jkGhjVk84kOgkEagkEagkEagkEagkEagkEagkEagkEagkEagkEagkEagkEagkEagkEagkEagkEagkEagkOYp0NOmWoXp6beTzWGx/ASamLfqD+n5D6M2h+XyEuhpc8kyef4cvTksw2q1av+ll0CP61/nP6YdT/IEihur+uMrRlBoWDUeG3wdg9ZDKMeg6GnSQPMn+WoW3zF+EihuTRvo1JtD/CY8Bp1+c5iB6WbxDQmzeIwx8QhqLpxsDrPHUzykESikeQo0yZ/Ey1OhHINiFE8n6n+8Z8f1S0agGMnjS52nzfMngWIcrxeL7J4/CRSj+L1YZPdCoBjF0zFoneVx3XVNPYGiF2+z+OpJ/rQhUIzBeVBII1BII1BII1BII1BII1BII1BII1BII1BII1BII1Co+Pj4aP8lgULER/3xFYFCw0fjsYFAoYFAIY1A0enu9GTyLyLjGBQN1yrvpzE5ZvFouFbZ8eSqgUAX5jxMNR4J1P/m0NNl3CTQSTeHfq4t3o6jon0S6MzdTDxuxs2P+5+lhEBn7XZs/DJuXqq8f/NtDQQ6Z+2jy3vP5h3LF2gg0Dm7M/2582y+yrbbLYF63Rzuejg/v6xZsNrmD1sC9bk53Pdgfn498CzbLCsVRKCS9vu9mw11zs9XxYIWVaHbcjAlUJ+bm5l9/eHRqvgNmDrQ66McAhW0bzy6dj7ybD5uM9k+CVSRx0AvR55mlU/dV/WvoZjFiyJQQf4CvY6bZpuPpVv9XwOBKvJ2DHqdGpVtGtmB84JAJTmbxd+4To22ZaoEOtHm0E/ZZlmp9NS9gUDn7WaJa1P+RfnDV566NxDorN1ep2TKCXv1wxeeujdYBHpcvxVrcT5/TrJfjNC+TimScfPKItDd8+fh9SXbvUyyX4zQCjSWqdHV8ECLdQ5Tk390rIDkeL8Y4U6g18c42AW6y+PsWuTQ8X4xxu0x6BICzZ/bj+vnz2q1bf/7xSg3s/hFHIMe1+bH+2kzqk8CnUhxyPlFHHP3K04zzZrJYv9RE+icmcZjpGwCzZ/jnz93b9PsFyM0z8tHyiLQ9Md7UkySRhUa9Q8tGuXVShFcU/fA8EBPm7csD5TTTBGI5Zq6B+zOgxaBcqLeI0f3oonvhaMW+xF0N+rFeAJ9xNXdvOI7L99ifQyamF+T7HeJ3N0PMbrz8i2Ws3hjfrw/+uydMS+nTf5pXRUT6AMOb9gZ23n5Fj/nQctDAPNSXZo3fnNLI31H2Yl5CbQ4TC2OBLIq1bGbWx7lO8pOzEugxUS/nuV3zfUJ9CHhO8pObGCg+VN2eQRa6D7NxAgKVzwfg5apjt4clsvTxSLM4uGGTaDFKfrUcLEIJmD3prmsOBrlinr4Z/dafKHfa/Fdl5QQKHqxey2+YHU1k7kY/m+xRBZP8dWr8IdXrgeFfzaTpMPrt6/Fu9svlo33JEm6fbfwchGoIuW1CSfm5U1zl1dDu18QJdAHpNcmnNjAQA//6fWmudPmuyk+gT5AoFdDA3196/WmuW9vPEKgDxDo1dCn+MMf//R601z6zTtCCPQRjkEveNOcJGbxZ7xpDtI8vWnO3X6xbJwHhTQChTTrp/hxi3wQKPqxmyTlj8m4g1ACRS82p5mq6TunmTABiyvq/6yGTu5uhwnYj6Bd73h3vF8sm80xaHmKnhP1mILNm+a+vZbO5X6xbJwHlcS7Cs8IVFH8yxs5YxEoy3H7NoPljZyxu7MIy3F7NYPljZyxu7MIy3F7NYPljZyxC5TluL2awfJGztg8xbMct2czWN7IGatJEstx+zWD5Y2c4TSToviXN3KGQCVFv7yRM4MXUbi8As8sHhOwCbS6QyiBYgIECmkECmkECmkECmkECmkECmmDA3Xxfo8h+8Wy8UoSpBEopBEopBEopBEopBEopA0O9LRxcJKJQNHT0EATU6/flRpWO4Z/AwM9LxafcXc7TIIr6iGNERTShh+D1kMox6CYwuBZ/PlyEVb5wBQ4DwppBAppBAppBAppXFEPaUNH0NNm5IvwQ/eLZbO4WGTcfReH7hfLNvwYNO2zgldxC+bDqzGdK84SKHrxM0kq+/z5/uW1+xGbw3J5CbRYqKZeBaTrFXsCRS+eAv11vqyk65onAkUvNqt8XE40dR6MFqNnwgiK8SxG0Oo6pnyuVD6T33VcP/0uh9C0a5ZEoOhleKDn80z52PjgktC0GmM7T0kRKHqxW8irkB9djrionkDRi80IWj2xFyMogcKzMcegfV5U6mqYQNGLzWmmch6fh7cbPoBeLzUZ+i+xTFxuB2kECmk2gRZXgXRfBuJ4v1g260lS0ueiJgf7xbKNOs3U9bk9rrsnUPQy6kR95yd/f909gaIXLyNoj+vuCRS9+DoG/e66ewJFL8ziIY3zoJBGoBer1Sr0l4AWAj1b1R+Qwp1Faqtsv99TqBxG0Npqnz/sCVQNgdZWjUfoINBaOXiWwyiUEGhtX87iCVQNgZ7t6w9IIdCLYhYPNQQKaQQKaQQKaQQKaQQKaQQKaQQKaQR6wf14FBHomckUv6rFI9CaaTxCB4HWCFQTgdYIVBOBnnEMKolAL7bbbegvAS0EeratPyCFQGvbxiN0EGiNQDURaI1ANRHoGcegkgj0glm8ogUEypvhYjb/QHk7cdRmH+i+8Yj4ECikLSBQbmkTs9kHyo1p4zb7QLkxbdwWEOj1EfEhUEibfaDZyhhDn9Gaf6Amn8ULvrCKfmYfKO81ihuBQhqBQtrsA+XdmnGbf6Bc5xm1+QfKlfJRm32gvNcobgQKaQQKabMPlGPQuHkN9PD6y+XmLDGLj5mXQI9rc/H0e/TmsGB+RtDUvBX/oTGCImaenuKP6+dPAsV43o5Bdz/eCRSj+ZskJeaNQDGWx1n84fVfBIqRfJ5mOm0MgWKc+Z+oR9R8B5pwHhRjTDyCXk/gO9kcZo+neEgjUEgjUEgjUEjjaiZI8zOCnjYdXdptDsvl6Sn+tHlxuTkslq9j0LT7VU6bzWGpmCRBGoFCGoFCGoFCGoFCGoFCmlKgLEuMFqFAWZYYbTqBsuor7iBQSCNQSNMJlGNQ3CEUKLN4tCkFCrQQKKQRKKQRKKQpBcr9RtAiFKhxvxdETydQ42M3iB2BQhqBQppOoByD4g6hQJnFo00pUKBFKVAW1USLUKAsS4w2nUBZ2B13ECikESik6QTKMSjuEAqUWTzaggUK9BIo0GD7UNsz37TuJoPsQ23PfNO6mwyyD7U9803rbjLIPtT2zDetu8kg+1DbM9+07iaD7ENtz3zTupsMsg+1PfNN624yyD7U9sw3rbvJIPtQ2zPftO4mAXcIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNIIFNK8B5oa8+Pd9046HP74HWS/p40x5i3IrpOAP+4s2z1/ut6k70DT/MeVBvqRHddPQQI9bfJvODEvAXad5N9xqB93MRhFF+hpUwwkuxC/q2LsDhPo4fVXVrUyteP6rfiZB/lxF3uPL9Bwv6u8z7c0TKD1/kMNZMECTZ7/ii/Qn8VvKVQoQQPdhdp5Euj/GfnvOr5j0GoYCTWYhAw0DTRLSkNNz4qjOQIduPdwgaZB5kil08Z9Jj0k+V7jC3SpT/Ghxs9q5yHGg/I3HWGg4SZJWcBAk5B91j/0iSX1bRVd73rGp5nCBZo4/zX1VKUZ7okjvhE06In6UL+pw2uw8bMopBoUgu3eMe8vdYZ87S1QoPWzXZBve+fhWXbA3iMMFBiDQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQCGNQKcR8G53cSPQSQS8HU3kCBTSCNTScd1xC6R67Zub5Xd2QW/IGDECtdQVaL32zc1d/Q4//x3yfvkRI1BLHYHWa9/c3hc1efpfiLvKzgCBWioDTc8ryu3yJ/S/i0GzXvvm5s7Sp81LtTjM8c+/i4CTxr8r75Z4eA1620RhBGqpCDTNmzquX6olZ9L6mLMK9Ou9+Ysn+3J1mOO6uINm8cfyLrfFEFv9l7J2Cm0jUEt5oNXzeB5fNV7uGoHerG5S3Ni1XAXu+lB83vHP92qwDbqgkzYCtZQHWnWZP6aXeVF2N9DqnuDFMFsdGJR/XS91kJpyGKbQDgRq6RJo/oekFejXp/jrChiXI9fqv+b/QzV7KtdH5hn+DgK19HgE/TJJqhfPLI5WGyNoVn/WZdGYXcB1tHURqKX2MWjSCPTLaaZzkPknlIFezlBVRwPnkbPz1P+iEailx7P4Lyfqz2tf5IeiVYRlyrsq7OPavFWfGW6dd2UEaql1HvTpv9UTen3geV1+57rw2+7pn2qULA5Ki08rP2lXnj8NuFqPNAJ1hnNFPhCoA+UYWZ3dhGME6kLqYxlVFAgU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0ggU0v4PAujCWZv2lN0AAAAASUVORK5CYII=" /><!-- --></p>
+<pre class="r"><code>plot(log10(mods$Areas), log10(mods$PowerQuadratic), xlab=&quot;Áreas&quot;, ylab=&quot;Espécies&quot; )
+points(log10(mods$Areas), log10(mods$Power), col=&quot;red&quot;)
+points(log10(mods$Areas), log10(mods$Logarithmic), col=&quot;blue&quot;)
+points(log10(mods$Areas), log10(mods$'Michaelis-Menten'), col=&quot;purple&quot;)
+points(log10(mods$Areas), log10(mods$Lomolino), col=&quot;brown&quot;)</code></pre>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 <p>Note que a relação aqui ficou log10 x log10</p>
+<p>Agora iremos fazer um boxplot para vermos um pouco da variação que os modelos geram na previsão de riqueza das ilhas</p>
+<pre class="r"><code>long&lt;-gather(mods[,2:6])
+l&lt;-cbind(long, areas)</code></pre>
+<pre class="r"><code>kable(l)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">key</th>
+<th align="right">value</th>
+<th align="right">V1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Power</td>
+<td align="right">20.810000</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="left">Power</td>
+<td align="right">28.446335</td>
+<td align="right">5.20</td>
+</tr>
+<tr class="odd">
+<td align="left">Power</td>
+<td align="right">32.760083</td>
+<td align="right">10.95</td>
+</tr>
+<tr class="even">
+<td align="left">Power</td>
+<td align="right">53.964975</td>
+<td align="right">152.30</td>
+</tr>
+<tr class="odd">
+<td align="left">Power</td>
+<td align="right">69.932576</td>
+<td align="right">597.60</td>
+</tr>
+<tr class="even">
+<td align="left">Power</td>
+<td align="right">74.255938</td>
+<td align="right">820.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Power</td>
+<td align="right">76.953411</td>
+<td align="right">989.80</td>
+</tr>
+<tr class="even">
+<td align="left">Power</td>
+<td align="right">80.220485</td>
+<td align="right">1232.50</td>
+</tr>
+<tr class="odd">
+<td align="left">Power</td>
+<td align="right">128.941632</td>
+<td align="right">15061.00</td>
+</tr>
+<tr class="even">
+<td align="left">PowerQuadratic</td>
+<td align="right">22.387211</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">PowerQuadratic</td>
+<td align="right">29.058384</td>
+<td align="right">5.20</td>
+</tr>
+<tr class="even">
+<td align="left">PowerQuadratic</td>
+<td align="right">32.897114</td>
+<td align="right">10.95</td>
+</tr>
+<tr class="odd">
+<td align="left">PowerQuadratic</td>
+<td align="right">52.629993</td>
+<td align="right">152.30</td>
+</tr>
+<tr class="even">
+<td align="left">PowerQuadratic</td>
+<td align="right">68.479955</td>
+<td align="right">597.60</td>
+</tr>
+<tr class="odd">
+<td align="left">PowerQuadratic</td>
+<td align="right">72.918336</td>
+<td align="right">820.00</td>
+</tr>
+<tr class="even">
+<td align="left">PowerQuadratic</td>
+<td align="right">75.719057</td>
+<td align="right">989.80</td>
+</tr>
+<tr class="odd">
+<td align="left">PowerQuadratic</td>
+<td align="right">79.143442</td>
+<td align="right">1232.50</td>
+</tr>
+<tr class="even">
+<td align="left">PowerQuadratic</td>
+<td align="right">134.303109</td>
+<td align="right">15061.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Logarithmic</td>
+<td align="right">14.360000</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="left">Logarithmic</td>
+<td align="right">29.510631</td>
+<td align="right">5.20</td>
+</tr>
+<tr class="odd">
+<td align="left">Logarithmic</td>
+<td align="right">36.354003</td>
+<td align="right">10.95</td>
+</tr>
+<tr class="even">
+<td align="left">Logarithmic</td>
+<td align="right">60.545930</td>
+<td align="right">152.30</td>
+</tr>
+<tr class="odd">
+<td align="left">Logarithmic</td>
+<td align="right">73.108848</td>
+<td align="right">597.60</td>
+</tr>
+<tr class="even">
+<td align="left">Logarithmic</td>
+<td align="right">76.016301</td>
+<td align="right">820.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Logarithmic</td>
+<td align="right">77.745784</td>
+<td align="right">989.80</td>
+</tr>
+<tr class="even">
+<td align="left">Logarithmic</td>
+<td align="right">79.761051</td>
+<td align="right">1232.50</td>
+</tr>
+<tr class="odd">
+<td align="left">Logarithmic</td>
+<td align="right">102.763387</td>
+<td align="right">15061.00</td>
+</tr>
+<tr class="even">
+<td align="left">Michaelis-Menten</td>
+<td align="right">1.971770</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Michaelis-Menten</td>
+<td align="right">9.351727</td>
+<td align="right">5.20</td>
+</tr>
+<tr class="even">
+<td align="left">Michaelis-Menten</td>
+<td align="right">17.576878</td>
+<td align="right">10.95</td>
+</tr>
+<tr class="odd">
+<td align="left">Michaelis-Menten</td>
+<td align="right">67.142675</td>
+<td align="right">152.30</td>
+</tr>
+<tr class="even">
+<td align="left">Michaelis-Menten</td>
+<td align="right">80.197160</td>
+<td align="right">597.60</td>
+</tr>
+<tr class="odd">
+<td align="left">Michaelis-Menten</td>
+<td align="right">81.670125</td>
+<td align="right">820.00</td>
+</tr>
+<tr class="even">
+<td align="left">Michaelis-Menten</td>
+<td align="right">82.367483</td>
+<td align="right">989.80</td>
+</tr>
+<tr class="odd">
+<td align="left">Michaelis-Menten</td>
+<td align="right">83.041774</td>
+<td align="right">1232.50</td>
+</tr>
+<tr class="even">
+<td align="left">Michaelis-Menten</td>
+<td align="right">85.667859</td>
+<td align="right">15061.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Lomolino</td>
+<td align="right">19.778052</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="left">Lomolino</td>
+<td align="right">27.369748</td>
+<td align="right">5.20</td>
+</tr>
+<tr class="odd">
+<td align="left">Lomolino</td>
+<td align="right">31.668800</td>
+<td align="right">10.95</td>
+</tr>
+<tr class="even">
+<td align="left">Lomolino</td>
+<td align="right">52.734060</td>
+<td align="right">152.30</td>
+</tr>
+<tr class="odd">
+<td align="left">Lomolino</td>
+<td align="right">68.392427</td>
+<td align="right">597.60</td>
+</tr>
+<tr class="even">
+<td align="left">Lomolino</td>
+<td align="right">72.590374</td>
+<td align="right">820.00</td>
+</tr>
+<tr class="odd">
+<td align="left">Lomolino</td>
+<td align="right">75.199737</td>
+<td align="right">989.80</td>
+</tr>
+<tr class="even">
+<td align="left">Lomolino</td>
+<td align="right">78.349642</td>
+<td align="right">1232.50</td>
+</tr>
+<tr class="odd">
+<td align="left">Lomolino</td>
+<td align="right">123.833194</td>
+<td align="right">15061.00</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>boxplot(value ~ V1, data=l, xlab=&quot;Tamanho das ilhas&quot;, ylab=&quot;Número de espécies&quot;)</code></pre>
+<p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
 </div>
 <div id="perguntas" class="section level3">
 <h3>Perguntas</h3>
-<p>Agora que avaliamos os modelos para as ilhas do exercício, vamos assumir que estamos pensando em amostrar outras 3 ilhas, cujos tamanhos são 10, 100 e 1000 ha. Como os modelos se comportam para ilhas com estes tamanhos? Onde vai haver a maior diferença entre os modelos? Como isso pode afetar a utilização destes modelos para a tomada de decisão, caso estejamos por exemplo, interessados em entender um determinado impacto nestas ilhas?</p>
+<p>Agora que avaliamos os modelos para as ilhas do exercício, vamos assumir que estamos pensando em amostrar outras 3 ilhas, cujos tamanhos são 20, 100, 1000 e 10000 ha. Como os modelos se comportam para ilhas com estes tamanhos? Onde vai haver a maior diferença entre os modelos? Como isso pode afetar a utilização destes modelos para a tomada de decisão, caso estejamos por exemplo, interessados em entender um determinado impacto nestas ilhas?</p>
+<p>Para resolver esse exercício, comece gerando um objeto com as áreas das novas ilhas a serem trabalhadas, e rode as funções novamente</p>
 <p><strong>Coisas ainda pra fazer:</strong></p>
 <p>##Ainda necessita preparar….</p>
 <p>Estas equações servem (com outros parâmetros) para analisarmos por exemplo, o número de espécies de Microcrustáceos zooplanctônicos das lagos do campus. Será que o número de espécies varia em função do tamanho da lagoa?</p>
