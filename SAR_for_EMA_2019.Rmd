@@ -87,7 +87,7 @@ MM<-function(b0, Areas, b1){
 }
 
 Lomo<-function(b0, b1, b2, Areas){
-  S = b0/(1 + b1^(log10(b2/Areas)))
+  S = b0/(1 + b1^log10(b2/Areas))
   return (S)
 }
 ```
